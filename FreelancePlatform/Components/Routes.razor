@@ -1,0 +1,9 @@
+﻿<Router AppAssembly="@typeof(Program).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.AuthLayout)" />
+    </Found>
+
+    <NotFound>
+        <h3>Pagina nu există</h3>
+    </NotFound>
+</Router>
