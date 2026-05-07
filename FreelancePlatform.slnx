@@ -1,3 +1,4 @@
 <Solution>
-  <Project Path="FreelancePlatform/FreelancePlatform.csproj" />
+  <Project Path="FreelancePlatform.Api/FreelancePlatform.Api.csproj" />
+  <Project Path="FreelancePlatform.Web/FreelancePlatform.Web.csproj" />
 </Solution>
