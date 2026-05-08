@@ -1,12 +1,19 @@
 ﻿@page "/"
+@rendermode InteractiveServer
 @page "/login"
 @layout Layout.AuthLayout
+
+@inject AuthService AuthService
+@inject NavigationManager Navigation
 
 <div class="login-box">
 
     <h3 class="text-center">Logare</h3>
 
-    <EditForm Model="@model">
+    <EditForm Model="@model"
+              OnValidSubmit="HandleLogin">
+
+        <DataAnnotationsValidator />
 
         <InputText @bind-Value="model.Email"
                    class="form-control mb-2"
@@ -23,6 +30,13 @@
 
     </EditForm>
 
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <div class="alert @(isSuccess ? "alert-info" : "alert-danger") mt-3">
+            @message
+        </div>
+    }
+
     <p class="text-center mt-3">
         Dacă nu ai cont,
         <a href="/register">înregistrează-te aici</a>
@@ -31,11 +45,35 @@
 </div>
 
 @code {
+
     private LoginModel model = new();
+
+    private bool isSuccess = false;
+
+    private string message = "";
+
+    private async Task HandleLogin()
+    {
+        var response = await AuthService.Login(
+            model.Email,
+            model.Password
+        );
+
+        var result = await response.Content.ReadAsStringAsync();
+
+        message = result;
+        isSuccess = response.IsSuccessStatusCode;
+
+        if (response.IsSuccessStatusCode)
+        {
+            Navigation.NavigateTo("/home");
+        }
+    }
 
     public class LoginModel
     {
         public string Email { get; set; } = "";
+
         public string Password { get; set; } = "";
     }
 }

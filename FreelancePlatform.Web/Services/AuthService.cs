@@ -9,9 +9,11 @@ public class AuthService
         _http = http;
     }
 
-    public async Task<HttpResponseMessage> Register(string email, string numeComplet, string parola)
+    public async Task<HttpResponseMessage> Register(
+        string email,
+        string numeComplet,
+        string parola)
     {
-        Console.WriteLine("Hello !!");
         var request = new
         {
             email,
@@ -19,6 +21,24 @@ public class AuthService
             parola
         };
 
-        return await _http.PostAsJsonAsync("/inregistrare", request);
+        return await _http.PostAsJsonAsync(
+            "/inregistrare",
+            request
+        );
+    }
+    public async Task<HttpResponseMessage> Login(
+            string email,
+            string parola)
+    {
+        var request = new
+        {
+            email,
+            parola
+        };
+
+        return await _http.PostAsJsonAsync(
+            "/logare",
+            request
+        );
     }
 }
