@@ -1,30 +1,40 @@
 ﻿@page "/"
-@rendermode InteractiveServer
 @page "/login"
+
+@rendermode InteractiveServer
 @layout Layout.AuthLayout
+
+@using System.ComponentModel.DataAnnotations
 
 @inject AuthService AuthService
 @inject NavigationManager Navigation
 
 <div class="login-box">
 
-    <h3 class="text-center">Logare</h3>
+    <h2 class="text-center">Logare</h2>
 
     <EditForm Model="@model"
               OnValidSubmit="HandleLogin">
 
         <DataAnnotationsValidator />
+        <ValidationSummary />
 
         <InputText @bind-Value="model.Email"
-                   class="form-control mb-2"
+                   class="form-control"
                    placeholder="Email" />
 
+        <ValidationMessage For="@(() => model.Email)" />
+        <br />
+
         <InputText @bind-Value="model.Password"
-                   class="form-control mb-2"
+                   class="form-control"
                    type="password"
                    placeholder="Parola" />
 
-        <button class="btn btn-primary w-100">
+        <ValidationMessage For="@(() => model.Password)" />
+        <br />
+
+        <button type="submit" class="btn btn-primary w-100">
             Logare
         </button>
 
@@ -32,7 +42,7 @@
 
     @if (!string.IsNullOrEmpty(message))
     {
-        <div class="alert @(isSuccess ? "alert-info" : "alert-danger") mt-3">
+        <div class="alert @(isSuccess ? "alert-success" : "alert-danger") mt-3">
             @message
         </div>
     }
@@ -59,21 +69,26 @@
             model.Password
         );
 
-        var result = await response.Content.ReadAsStringAsync();
-
-        message = result;
         isSuccess = response.IsSuccessStatusCode;
 
         if (response.IsSuccessStatusCode)
         {
+            message = "Logare reușită!";
             Navigation.NavigateTo("/home");
+        }
+        else
+        {
+            message = "Email sau parolă incorectă";
         }
     }
 
     public class LoginModel
     {
+        [Required(ErrorMessage = "Email obligatoriu")]
+        [EmailAddress(ErrorMessage = "Email invalid")]
         public string Email { get; set; } = "";
 
+        [Required(ErrorMessage = "Parola este obligatorie")]
         public string Password { get; set; } = "";
     }
 }
