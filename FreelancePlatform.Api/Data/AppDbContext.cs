@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using FreelancePlatform.Api.Models;
 
 public class AppDbContext : DbContext
 {
@@ -8,4 +9,6 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<User> Users { get; set; }
+
+    public DbSet<Anunt> Anunturi { get; set; }
 }
