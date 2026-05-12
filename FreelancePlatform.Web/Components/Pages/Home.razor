@@ -1,5 +1,124 @@
 ﻿@page "/home"
 
-<h1>Pagina Principală</h1>
+<nav class="navbar navbar-expand-lg bg-white shadow-sm py-3 px-4 fixed-top">
 
-<p>Te-ai logat cu succes.</p>
+    <div class="container-fluid">
+
+        <a class="navbar-brand fw-bold fs-2 text-success"
+               href="/home">
+
+            FreelancePlatform
+
+        </a>
+
+        <div class="d-flex gap-3">
+
+            <button class="btn btn-outline-dark">
+                Explorează
+            </button>
+
+            <button class="btn btn-success">
+                Creează anunț
+            </button>
+
+        </div>
+
+    </div>
+
+</nav>
+<div style="margin-top: 120px;"></div>
+
+<div class="container mt-5">
+
+    <div class="hero-section text-center mb-5">
+
+        <h1 class="display-4 fw-bold">
+            Găsește freelancerul perfect
+        </h1>
+
+        <p class="text-muted fs-5 mt-3">
+            Servicii IT pentru web, aplicații desktop,
+            Unity, baze de date și multe altele.
+        </p>
+
+        <div class="d-flex justify-content-center mt-4 gap-3">
+
+            <button class="btn btn-success btn-lg px-4">
+                Caută servicii
+            </button>
+
+            <button class="btn btn-dark btn-lg px-4">
+                Publică anunț
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        @if (anunturi.Any())
+        {
+            @foreach (var anunt in anunturi)
+            {
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card border-0 shadow-sm h-100 custom-card">
+                        ...
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center mt-5">
+                <h3 class="fw-bold text-muted">
+                    Niciun anunț încă
+                </h3>
+
+                <p class="text-secondary">
+                    Platforma este nouă. Primul anunț va apărea aici.
+                </p>
+            </div>
+        }
+
+    </div>
+
+</div>
+
+<style>
+
+    body {
+        background-color: #f7f7f7;
+    }
+
+    .hero-section {
+        padding: 40px 0;
+    }
+
+    .custom-card {
+        transition: 0.2s;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .custom-card:hover {
+        transform: translateY(-5px);
+    }
+
+</style>
+
+@code {
+
+
+
+        private List<Anunt> anunturi = new();
+
+        public class Anunt
+        {
+            public string Titlu { get; set; } = "";
+            public string Descriere { get; set; } = "";
+            public string Categorie { get; set; } = "";
+            public string TipAnunt { get; set; } = "";
+            public decimal Pret { get; set; }
+        }
+}
