@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreelancePlatform.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260512093751_AddAnuntTable")]
+    partial class AddAnuntTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,7 +24,7 @@ namespace FreelancePlatform.Api.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("FreelancePlatform.Api.Models.Anunt", b =>
+            modelBuilder.Entity("Anunt", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -43,10 +46,6 @@ namespace FreelancePlatform.Api.Migrations
 
                     b.Property<decimal>("PretSauBuget")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Tehnologii")
                         .IsRequired()
@@ -96,7 +95,7 @@ namespace FreelancePlatform.Api.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("FreelancePlatform.Api.Models.Anunt", b =>
+            modelBuilder.Entity("Anunt", b =>
                 {
                     b.HasOne("User", "Utilizator")
                         .WithMany("Anunturi")

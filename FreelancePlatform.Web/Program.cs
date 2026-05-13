@@ -14,6 +14,7 @@ builder.Services.AddScoped(sp =>
     });
 
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<AnuntService>();
 
 var app = builder.Build();
 

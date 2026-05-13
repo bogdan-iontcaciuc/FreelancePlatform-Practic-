@@ -1,0 +1,176 @@
+﻿@page "/creeaza-anunt"
+@rendermode InteractiveServer
+
+@inject AnuntService AnuntService
+@inject NavigationManager Navigation
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow-lg border-0 rounded-4">
+
+                <div class="card-body p-5">
+
+                    <h2 class="fw-bold mb-4 text-center">
+                        Publicare anunț
+                    </h2>
+
+                    <EditForm Model="model"
+                              OnValidSubmit="HandleSubmit">
+
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                Titlu
+                            </label>
+
+                            <InputText class="form-control form-control-lg"
+                                       @bind-Value="model.Titlu" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                Descriere
+                            </label>
+
+                            <InputTextArea class="form-control"
+                                           rows="5"
+                                           @bind-Value="model.Descriere" />
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-4">
+
+                                <label class="form-label fw-semibold">
+                                    Tip anunț
+                                </label>
+
+                                <InputText class="form-control"
+                                           @bind-Value="model.TipAnunt" />
+
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+
+                                <label class="form-label fw-semibold">
+                                    Categorie
+                                </label>
+
+                                <InputText class="form-control"
+                                           @bind-Value="model.Categorie" />
+
+                            </div>
+
+                        </div>
+
+                        <div class="mb-4">
+
+                            <label class="form-label fw-semibold">
+                                Tehnologii
+                            </label>
+
+                            <InputText class="form-control"
+                                       @bind-Value="model.Tehnologii" />
+
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-4">
+
+                                <label class="form-label fw-semibold">
+                                    Preț / Buget (€)
+                                </label>
+
+                                <InputNumber class="form-control"
+                                             @bind-Value="model.PretSauBuget" />
+
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+
+                                <label class="form-label fw-semibold">
+                                    Utilizator ID
+                                </label>
+
+                                <InputNumber class="form-control"
+                                             @bind-Value="model.UtilizatorId" />
+
+                            </div>
+
+                        </div>
+
+                        <button class="btn btn-dark btn-lg w-100"
+                                type="submit">
+                            Publică anunț
+                        </button>
+
+                    </EditForm>
+
+                    @if (!string.IsNullOrEmpty(message))
+                    {
+                        <div class="alert alert-success mt-4">
+                            @message
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+
+    body {
+        background: #f5f7fb;
+    }
+
+    .card {
+        border-radius: 25px;
+    }
+
+    .form-control {
+        border-radius: 12px;
+        padding: 12px;
+    }
+
+    .btn-dark {
+        border-radius: 12px;
+        padding: 12px;
+        font-weight: 600;
+    }
+
+</style>
+
+@code {
+
+    private CreateAnuntModel model = new();
+
+    private string message = string.Empty;
+
+    private async Task HandleSubmit()
+    {
+        var response = await AnuntService.Create(model);
+
+        if (response.IsSuccessStatusCode)
+        {
+            message = "Anunț publicat cu succes!";
+            model = new CreateAnuntModel();
+        }
+        else
+        {
+            message = await response.Content.ReadAsStringAsync();
+        }
+    }
+}

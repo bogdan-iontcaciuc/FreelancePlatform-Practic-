@@ -1,5 +1,35 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="app-layout">
+<nav class="navbar navbar-expand-lg bg-white shadow-sm py-3 px-4">
+
+    <div class="container-fluid">
+
+        <a class="navbar-brand fw-bold fs-2 text-success"
+               href="/home">
+
+            FreelancePlatform
+
+        </a>
+
+        <div class="d-flex gap-3">
+
+            <button class="btn btn-outline-dark">
+                Explorează
+            </button>
+
+            <a class="btn btn-success"
+                   href="/creeaza-anunt">
+
+                Creează anunț
+
+            </a>
+
+        </div>
+
+    </div>
+
+</nav>
+
+<div class="container-fluid py-4">
     @Body
 </div>

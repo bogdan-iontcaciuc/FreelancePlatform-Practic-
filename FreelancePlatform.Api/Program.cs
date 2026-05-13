@@ -13,6 +13,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // 🔥 Service
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<AnuntService>();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
