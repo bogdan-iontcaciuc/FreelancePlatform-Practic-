@@ -10,10 +10,9 @@ public class AnuntController : ControllerBase
     {
         _anuntService = anuntService;
     }
-
     [HttpPost]
     public async Task<IActionResult> Create(
-        [FromBody] CreateAnuntRequest request)
+    [FromBody] CreateAnuntRequest request)
     {
         if (!ModelState.IsValid)
         {
@@ -24,6 +23,46 @@ public class AnuntController : ControllerBase
 
             return BadRequest(errors);
         }
+
+        var categoriiValide = new List<string>
+    {
+        "IT",
+        "Design",
+        "Marketing",
+        "Traducere",
+        "Scriere"
+    };
+
+        var tipuriValide = new List<string>
+    {
+        "Caut serviciu",
+        "Ofer servicii"
+    };
+
+        var tehnologiiValide = new List<string>
+    {
+        "C#",
+        ".NET",
+        "React",
+        "SQL",
+        "JavaScript"
+    };
+
+        if (!categoriiValide.Contains(request.Categorie))
+        {
+            return BadRequest("Categorie invalidă.");
+        }
+
+        if (!tipuriValide.Contains(request.TipAnunt))
+        {
+            return BadRequest("Tip anunț invalid.");
+        }
+
+        if (!tehnologiiValide.Contains(request.Tehnologii))
+        {
+            return BadRequest("Tehnologie invalidă.");
+        }
+
         var result = await _anuntService.CreateAnunt(request);
 
         if (!result.Success)
@@ -40,4 +79,5 @@ public class AnuntController : ControllerBase
 
         return Ok(anunturi);
     }
+
 }

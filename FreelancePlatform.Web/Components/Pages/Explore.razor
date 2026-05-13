@@ -1,0 +1,209 @@
+﻿@page "/explore"
+@rendermode InteractiveServer
+@inject AnuntService AnuntService
+
+<h1 class="page-title">Explorează anunțuri</h1>
+
+<div class="filters-container">
+
+    <input type="text"
+           class="search-input"
+           placeholder="Caută după titlu sau descriere..."
+           @bind="searchText"
+           @bind:event="oninput" />
+
+
+
+    <select @bind="selectedType"@bind:event="onchange"class="filter-select">
+        <option value="">Toate tipurile</option>
+        <option value="Caut serviciu">Caut serviciu</option>
+        <option value="Ofer servicii">Ofer servicii</option>
+    </select>
+
+    <select @bind="selectedCategory"bind:event="onchange"class="filter-select">
+        <option value="">Toate categoriile</option>
+        <option value="IT">IT</option>
+        <option value="Traducere">Traducere</option>
+        <option value="Scriere">Scriere</option>
+        <option value="Design">Design</option>
+        <option value="Marketing">Marketing</option>
+    </select>
+    <select @bind="selectedTechnology"@bind:event="onchange"class="filter-select">
+        <option value="">Toate tehnologiile</option>
+        <option value="C#">C#</option>
+        <option value=".NET">.NET</option>
+        <option value="React">React</option>
+        <option value="SQL">SQL</option>
+        <option value="JavaScript">JavaScript</option>
+    </select>
+
+    <div class="price-filter">
+        <label for="maxPriceRange">
+            Preț maxim: @maxPrice.ToString("0") €
+        </label>
+
+        <input id="maxPriceRange"
+               type="range"
+               min="0"
+               max="10000"
+               step="50"
+               @bind="maxPrice"
+               @bind:event="oninput" />
+
+        <div class="price-range-labels">
+            <span>0 €</span>
+            <span>10 000 €</span>
+        </div>
+    </div>
+
+    <button class="btn btn-success"
+            @onclick="ApplyFilters">
+        Aplică filtre
+    </button>
+</div>
+
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="alert alert-success mt-3">
+        @successMessage
+    </div>
+}
+
+<div class="row mt-4">
+
+    @foreach (var announcement in filteredAnnouncements)
+    {
+        <div class="col-lg-4 col-md-6 mb-4">
+
+            <div class="card border-0 shadow h-100 custom-card">
+
+                <div class="card-body d-flex flex-column p-4">
+
+                    <h4 class="fw-bold mb-3">
+                        @announcement.Titlu
+                    </h4>
+
+                    <p class="text-muted flex-grow-1">
+                        @announcement.Descriere
+                    </p>
+
+                    <div class="mb-3">
+                        <span class="badge bg-primary me-2">
+                            @announcement.Categorie
+                        </span>
+
+                        <span class="badge bg-dark">
+                            @announcement.TipAnunt
+                        </span>
+                    </div>
+
+                    <div class="mb-2">
+                        <span class="badge bg-secondary">
+                            @announcement.Tehnologii
+                        </span>
+                    </div>
+
+                    <div class="fw-bold fs-5 text-success">
+                        @announcement.PretSauBuget €
+                    </div>
+
+                    <button class="btn btn-success mt-3">
+                        Aplică
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+
+    private List<Home.Anunt> announcements = new();
+    private List<Home.Anunt> filteredAnnouncements = new();
+
+    private string searchText = "";
+    private string selectedType = "";
+    private string selectedCategory = "";
+    private string selectedTechnology = "";
+
+    private decimal maxPrice = 5000;
+    private string successMessage = "";
+    
+
+    private void UpdatePrice(ChangeEventArgs e)
+    {
+        maxPrice = Convert.ToDecimal(e.Value);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        announcements = await AnuntService.GetAll();
+        filteredAnnouncements = announcements.ToList(); ;
+    }
+
+    private void ApplyFilters()
+    {
+        var query = announcements.AsEnumerable();
+
+        // Căutare după titlu și descriere
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            string search = searchText.Trim();
+
+            query = query.Where(a =>
+                (!string.IsNullOrWhiteSpace(a.Titlu) &&
+                 a.Titlu.Contains(search, StringComparison.OrdinalIgnoreCase))
+                ||
+                (!string.IsNullOrWhiteSpace(a.Descriere) &&
+                 a.Descriere.Contains(search, StringComparison.OrdinalIgnoreCase))
+            );
+        }
+
+        // Filtru după tip anunț
+        if (!string.IsNullOrWhiteSpace(selectedType))
+        {
+            string type = selectedType.Trim();
+
+            query = query.Where(a =>
+                !string.IsNullOrWhiteSpace(a.TipAnunt) &&
+                string.Equals(
+                    a.TipAnunt.Trim(),
+                    type,
+                    StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Filtru după categorie
+        if (!string.IsNullOrWhiteSpace(selectedCategory))
+        {
+            string category = selectedCategory.Trim();
+
+            query = query.Where(a =>
+                !string.IsNullOrWhiteSpace(a.Categorie) &&
+                string.Equals(
+                    a.Categorie.Trim(),
+                    category,
+                    StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Filtru după tehnologie
+        if (!string.IsNullOrWhiteSpace(selectedTechnology))
+        {
+            string technology = selectedTechnology.Trim();
+
+            query = query.Where(a =>
+                !string.IsNullOrWhiteSpace(a.Tehnologii) &&
+                a.Tehnologii.Contains(
+                    technology,
+                    StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Filtru după preț maxim
+        query = query.Where(a => a.PretSauBuget <= maxPrice);
+
+        // Actualizează lista afișată
+        filteredAnnouncements = query.ToList();
+
+        StateHasChanged();
+    }
+}
