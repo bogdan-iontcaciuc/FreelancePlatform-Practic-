@@ -1,5 +1,6 @@
 ﻿@page "/home"
 @inject AnuntService AnuntService
+@rendermode @(new InteractiveServerRenderMode(false))
 
 <div class="container mt-5">
 
@@ -63,6 +64,10 @@
                             <div class="fw-bold fs-5 text-success">
                                 @anunt.PretSauBuget €
                             </div>
+                            <a class="btn btn-success mt-3"
+                                   href="/anunt/@anunt.Id">
+                                Vezi detalii
+                            </a>
 
                         </div>
 
@@ -101,20 +106,12 @@
 
 
 
-    private List<Anunt> anunturi = new();
+    private List<AnuntModel> anunturi = new();
 
     protected override async Task OnInitializedAsync()
     {
         anunturi = await AnuntService.GetAll();
     }
     
-        public class Anunt
-        {
-            public string Titlu { get; set; } = "";
-            public string Descriere { get; set; } = "";
-            public string Categorie { get; set; } = "";
-            public string TipAnunt { get; set; } = "";
-            public string Tehnologii { get; set; } = "";
-            public decimal PretSauBuget { get; set; }
-        }
+        
 }

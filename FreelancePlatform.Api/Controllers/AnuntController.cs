@@ -54,4 +54,16 @@ public class AnuntController : ControllerBase
 
         return Ok(anunturi);
     }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var anunt = await _anuntService.GetById(id);
+
+        if (anunt == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(anunt);
+    }
 }

@@ -35,4 +35,6 @@ public class Anunt
     public int UtilizatorId { get; set; }
 
     public User? Utilizator { get; set; }
+    public ICollection<Message> Mesaje { get; set; }
+    = new List<Message>();
 }

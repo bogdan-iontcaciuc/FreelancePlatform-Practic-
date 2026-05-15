@@ -1,0 +1,72 @@
+﻿@page "/anunt/{Id:int}"
+@rendermode InteractiveServer
+@inject AnuntService AnuntService
+
+<h2 class="mb-4">Detalii anunț</h2>
+
+@if (anunt == null)
+{
+    <p>Se încarcă...</p>
+}
+else
+{
+    <div class="card shadow p-4">
+
+        <h2>@anunt.Titlu</h2>
+
+        <p class="mt-3">
+            @anunt.Descriere
+        </p>
+
+        <div class="mt-3">
+
+            <span class="badge bg-primary me-2">
+                @anunt.Categorie
+            </span>
+
+            <span class="badge bg-dark">
+                @anunt.TipAnunt
+            </span>
+
+        </div>
+
+        <div class="mt-3">
+            <strong>Tehnologii:</strong>
+            @anunt.Tehnologii
+        </div>
+
+        <div class="mt-3">
+            <strong>Buget:</strong>
+            @anunt.PretSauBuget €
+        </div>
+
+        <div class="mt-3">
+            <strong>Publicat:</strong>
+            @anunt.DataPublicarii.ToShortDateString()
+        </div>
+
+        <div class="mt-3">
+            <strong>Utilizator:</strong>
+            @anunt.NumeUtilizator
+        </div>
+
+        <a class="btn btn-success mt-4"
+               href="/apply/@anunt.Id">
+            Aplică
+        </a>
+
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private AnuntModel? anunt;
+
+    protected override async Task OnInitializedAsync()
+    {
+        anunt = await AnuntService.GetById(Id);
+    }
+}

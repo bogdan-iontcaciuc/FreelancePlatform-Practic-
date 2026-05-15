@@ -1,6 +1,7 @@
 ﻿@page "/explore"
 @rendermode InteractiveServer
 @inject AnuntService AnuntService
+@using FreelancePlatform.Web.Models
 
 <h1 class="page-title">Explorează anunțuri</h1>
 
@@ -20,7 +21,9 @@
         <option value="Ofer servicii">Ofer servicii</option>
     </select>
 
-    <select @bind="selectedCategory"bind:event="onchange"class="filter-select">
+    <select @bind="selectedCategory"
+            @bind:event="onchange"
+            class="filter-select">
         <option value="">Toate categoriile</option>
         <option value="IT">IT</option>
         <option value="Traducere">Traducere</option>
@@ -107,9 +110,10 @@
                         @announcement.PretSauBuget €
                     </div>
 
-                    <button class="btn btn-success mt-3">
-                        Aplică
-                    </button>
+                    <a class="btn btn-success mt-3"
+                           href="/anunt/@announcement.Id">
+                        Vezi detalii
+                    </a>
 
                 </div>
             </div>
@@ -119,8 +123,8 @@
 
 @code {
 
-    private List<Home.Anunt> announcements = new();
-    private List<Home.Anunt> filteredAnnouncements = new();
+    private List<AnuntModel> announcements = new();
+    private List<AnuntModel> filteredAnnouncements = new();
 
     private string searchText = "";
     private string selectedType = "";

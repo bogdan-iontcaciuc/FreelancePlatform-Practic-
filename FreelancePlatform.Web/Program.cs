@@ -1,5 +1,8 @@
-using FreelancePlatform.Web.Components;
+
 using Blazored.LocalStorage;
+using FreelancePlatform.Web.Components;
+using Microsoft.AspNetCore.Components.Web;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +20,7 @@ builder.Services.AddScoped(sp =>
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AnuntService>();
 builder.Services.AddBlazoredLocalStorage();
-
+builder.Services.AddScoped<MessageService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

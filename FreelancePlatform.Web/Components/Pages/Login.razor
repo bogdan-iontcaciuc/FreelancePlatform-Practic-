@@ -81,9 +81,9 @@
 
             if (result != null)
             {
-                await LocalStorage.SetItemAsync(
-                    "authToken",
-                    result.Token);
+                await AuthService.SaveToken(result.Token);
+
+                await AuthService.AddTokenToHeader();
 
                 message = "Logare reușită!";
 
