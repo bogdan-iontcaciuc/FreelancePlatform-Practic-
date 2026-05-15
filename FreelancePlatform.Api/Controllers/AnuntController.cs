@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 [ApiController]
 [Route("api/anunturi")]
@@ -10,6 +12,8 @@ public class AnuntController : ControllerBase
     {
         _anuntService = anuntService;
     }
+
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create(
     [FromBody] CreateAnuntRequest request)
@@ -24,46 +28,16 @@ public class AnuntController : ControllerBase
             return BadRequest(errors);
         }
 
-        var categoriiValide = new List<string>
-    {
-        "IT",
-        "Design",
-        "Marketing",
-        "Traducere",
-        "Scriere"
-    };
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        var tipuriValide = new List<string>
-    {
-        "Caut serviciu",
-        "Ofer servicii"
-    };
-
-        var tehnologiiValide = new List<string>
-    {
-        "C#",
-        ".NET",
-        "React",
-        "SQL",
-        "JavaScript"
-    };
-
-        if (!categoriiValide.Contains(request.Categorie))
+        if (string.IsNullOrEmpty(userIdClaim))
         {
-            return BadRequest("Categorie invalidă.");
+            return Unauthorized("Token invalid.");
         }
 
-        if (!tipuriValide.Contains(request.TipAnunt))
-        {
-            return BadRequest("Tip anunț invalid.");
-        }
+        int userId = int.Parse(userIdClaim);
 
-        if (!tehnologiiValide.Contains(request.Tehnologii))
-        {
-            return BadRequest("Tehnologie invalidă.");
-        }
-
-        var result = await _anuntService.CreateAnunt(request);
+        var result = await _anuntService.CreateAnunt(request, userId);
 
         if (!result.Success)
         {
@@ -72,6 +46,7 @@ public class AnuntController : ControllerBase
 
         return StatusCode(201, result.Message);
     }
+
     [HttpGet]
     public async Task<IActionResult> GetActive()
     {
@@ -79,5 +54,4 @@ public class AnuntController : ControllerBase
 
         return Ok(anunturi);
     }
-
 }

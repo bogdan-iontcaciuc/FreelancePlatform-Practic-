@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using Microsoft.EntityFrameworkCore;
-
 public class UserService
 {
     private readonly AppDbContext _context;
@@ -9,6 +7,17 @@ public class UserService
     public UserService(AppDbContext context)
     {
         _context = context;
+    }
+
+    public async Task<User?> LoginUser(string email, string parola)
+    {
+        email = email.Trim();
+        parola = parola.Trim();
+
+        return await _context.Users
+            .FirstOrDefaultAsync(u =>
+                u.Email == email &&
+                u.Parola == parola);
     }
 
     public async Task<(bool Success, string Message)> RegisterUser(
@@ -20,9 +29,7 @@ public class UserService
             .FirstOrDefaultAsync(u => u.Email == email);
 
         if (existingUser != null)
-        {
-            return (false, "Utilizatorul cu acest email există deja.");
-        }
+            return (false, "Email deja existent");
 
         var user = new User
         {
@@ -34,26 +41,6 @@ public class UserService
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        return (true, "Cont creat cu succes!");
-    }
-
-    public async Task<(bool Success, string Message)> LoginUser(
-         string email,
-         string parola)
-    {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Email == email);
-
-        if (user == null)
-        {
-            return (false, "Acest cont nu există.");
-        }
-
-        if (user.Parola != parola)
-        {
-            return (false, "Parola este incorectă.");
-        }
-
-        return (true, "V-ați logat cu succes.");
+        return (true, "Cont creat cu succes");
     }
 }

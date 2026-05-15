@@ -19,6 +19,4 @@ public class CreateAnuntModel
     [Range(0, 1000000)]
     public decimal PretSauBuget { get; set; }
 
-    [Required]
-    public int UtilizatorId { get; set; }
 }

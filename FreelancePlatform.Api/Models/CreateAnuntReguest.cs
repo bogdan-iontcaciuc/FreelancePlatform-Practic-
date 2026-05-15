@@ -21,8 +21,5 @@ public class CreateAnuntRequest
     [Range(0, 1000000)]
     public decimal PretSauBuget { get; set; }
 
-    [Required]
-    public int UtilizatorId { get; set; }
-
     public string Status { get; set; } = "Activ";
 }

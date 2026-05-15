@@ -11,15 +11,17 @@ public class AnuntService
     }
 
     public async Task<(bool Success, string Message)> CreateAnunt(
-        CreateAnuntRequest request)
+    CreateAnuntRequest request,
+    int userId)
     {
         var userExists = await _context.Users
-            .AnyAsync(u => u.Id == request.UtilizatorId);
+            .AnyAsync(u => u.Id == userId);
 
         if (!userExists)
         {
             return (false, "Utilizatorul nu există.");
         }
+
         var anunt = new Anunt
         {
             Titlu = request.Titlu,
@@ -28,7 +30,7 @@ public class AnuntService
             Categorie = request.Categorie,
             Tehnologii = request.Tehnologii,
             PretSauBuget = request.PretSauBuget,
-            UtilizatorId = request.UtilizatorId,
+            UtilizatorId = userId,   // IMPORTANT
             DataPublicarii = DateTime.UtcNow
         };
 

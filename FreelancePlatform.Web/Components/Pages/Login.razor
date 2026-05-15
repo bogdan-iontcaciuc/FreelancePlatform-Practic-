@@ -8,6 +8,9 @@
 
 @inject AuthService AuthService
 @inject NavigationManager Navigation
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 
 <div class="login-box">
 
@@ -73,8 +76,19 @@
 
         if (response.IsSuccessStatusCode)
         {
-            message = "Logare reușită!";
-            Navigation.NavigateTo("/home");
+            var result = await response.Content
+                .ReadFromJsonAsync<Models.LoginResponse>();
+
+            if (result != null)
+            {
+                await LocalStorage.SetItemAsync(
+                    "authToken",
+                    result.Token);
+
+                message = "Logare reușită!";
+
+                Navigation.NavigateTo("/home");
+            }
         }
         else
         {
