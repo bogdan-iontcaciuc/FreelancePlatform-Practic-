@@ -1,4 +1,5 @@
 using FreelancePlatform.Web.Components;
+using Blazored.LocalStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,7 @@ builder.Services.AddScoped(sp =>
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AnuntService>();
+builder.Services.AddBlazoredLocalStorage();
 
 var app = builder.Build();
 

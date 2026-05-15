@@ -3,6 +3,7 @@
 
 @inject AnuntService AnuntService
 @inject NavigationManager Navigation
+@inject AuthService AuthService
 
 <div class="container py-5">
 
@@ -117,16 +118,6 @@
 
                             </div>
 
-                            <div class="col-md-6 mb-4">
-
-                                <label class="form-label fw-semibold">
-                                    Utilizator ID
-                                </label>
-
-                                <InputNumber class="form-control"
-                                             @bind-Value="model.UtilizatorId" />
-
-                            </div>
 
                         </div>
 
@@ -185,6 +176,8 @@
 
     private async Task HandleSubmit()
     {
+        await AuthService.AddTokenToHeader();
+
         var response = await AnuntService.Create(model);
 
         if (response.IsSuccessStatusCode)
