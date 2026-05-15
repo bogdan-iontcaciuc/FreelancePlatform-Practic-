@@ -1,27 +1,41 @@
 ﻿using System.Net.Http.Json;
-using static FreelancePlatform.Web.Components.Pages.Home;
 
 public class AnuntService
 {
     private readonly HttpClient _http;
-
-    public AnuntService(HttpClient http)
+    private readonly AuthService _authService;
+    public AnuntService(
+    HttpClient http,
+    AuthService authService)
     {
         _http = http;
+        _authService = authService;
     }
 
     public async Task<HttpResponseMessage> Create(
         CreateAnuntModel model)
     {
+        await _authService.AddTokenToHeader();
+
         return await _http.PostAsJsonAsync(
             "api/anunturi",
             model
         );
     }
-    public async Task<List<Anunt>> GetAll()
+
+    public async Task<List<AnuntModel>> GetAll()
     {
-        return await _http.GetFromJsonAsync<List<Anunt>>(
+        return await _http.GetFromJsonAsync<
+            List<AnuntModel>>(
             "api/anunturi"
         ) ?? new();
+    }
+
+    public async Task<AnuntModel?> GetById(int id)
+    {
+        return await _http.GetFromJsonAsync<
+            AnuntModel>(
+            $"api/anunturi/{id}"
+        );
     }
 }

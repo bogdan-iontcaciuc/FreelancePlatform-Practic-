@@ -64,6 +64,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddAuthorization();
+builder.Services.AddScoped<MessageService>();
 
 var app = builder.Build();
 

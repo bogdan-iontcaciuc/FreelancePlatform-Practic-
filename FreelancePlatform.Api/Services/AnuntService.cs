@@ -40,11 +40,48 @@ public class AnuntService
 
         return (true, "Anunț creat cu succes!");
     }
-    public async Task<List<Anunt>> GetActiveAnunturi()
+    public async Task<List<AnuntResponse>> GetActiveAnunturi()
     {
         return await _context.Anunturi
+            .Include(a => a.Utilizator)
             .Where(a => a.Status == "Activ")
-            .OrderByDescending(a => a.DataPublicarii)
+            .Select(a => new AnuntResponse
+            {
+                Id = a.Id,
+                Titlu = a.Titlu,
+                Descriere = a.Descriere,
+                Categorie = a.Categorie,
+                TipAnunt = a.TipAnunt,
+                Tehnologii = a.Tehnologii,
+                PretSauBuget = a.PretSauBuget,
+                DataPublicarii = a.DataPublicarii,
+                UtilizatorId = a.UtilizatorId,
+                NumeUtilizator = a.Utilizator != null
+                    ? a.Utilizator.NumeComplet
+                    : ""
+            })
             .ToListAsync();
+    }
+    public async Task<AnuntResponse?> GetById(int id)
+    {
+        return await _context.Anunturi
+            .Include(a => a.Utilizator)
+            .Where(a => a.Id == id)
+            .Select(a => new AnuntResponse
+            {
+                Id = a.Id,
+                Titlu = a.Titlu,
+                Descriere = a.Descriere,
+                Categorie = a.Categorie,
+                TipAnunt = a.TipAnunt,
+                Tehnologii = a.Tehnologii,
+                PretSauBuget = a.PretSauBuget,
+                DataPublicarii = a.DataPublicarii,
+                UtilizatorId = a.UtilizatorId,
+                NumeUtilizator = a.Utilizator != null
+                    ? a.Utilizator.NumeComplet
+                    : ""
+            })
+            .FirstOrDefaultAsync();
     }
 }

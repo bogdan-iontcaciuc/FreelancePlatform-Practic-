@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Json;
 using Blazored.LocalStorage;
 using System.Net.Http.Headers;
-
+using Microsoft.JSInterop;
 public class AuthService
 {
     private readonly HttpClient _http;
@@ -58,20 +58,33 @@ public class AuthService
 
     public async Task<string?> GetToken()
     {
-        return await _localStorage.GetItemAsync<string>(
-            "authToken");
+        try
+        {
+            return await _localStorage.GetItemAsync<string>(
+                "authToken");
+        }
+        catch (InvalidOperationException)
+        {
+            return null;
+        }
     }
 
     public async Task AddTokenToHeader()
     {
-        var token = await GetToken();
-
-        if (!string.IsNullOrWhiteSpace(token))
+        try
         {
-            _http.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue(
-                    "Bearer",
-                    token);
+            var token = await GetToken();
+
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                _http.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue(
+                        "Bearer",
+                        token);
+            }
+        }
+        catch
+        {
         }
     }
 

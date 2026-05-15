@@ -1,0 +1,61 @@
+﻿@page "/inbox"
+@rendermode InteractiveServer
+@inject MessageService MessageService
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<h2 class="mb-4">Inbox</h2>
+
+@if (messages.Count == 0)
+{
+    <p>Nu ai mesaje.</p>
+}
+else
+{
+    @foreach (var message in messages)
+    {
+        <div class="card shadow p-3 mb-3">
+
+            <h5>
+                @message.Expeditor
+            </h5>
+
+            <div class="text-muted mb-2">
+                @message.TitluAnunt
+            </div>
+
+            <p>
+                @message.Continut
+            </p>
+
+            <small>
+                @message.DataTrimiterii
+            </small>
+
+        </div>
+    }
+}
+
+@code {
+
+    private List<MessageModel> messages = new();
+
+    protected override async Task OnAfterRenderAsync(
+    bool firstRender)
+    {
+        if (firstRender)
+        {
+            var token = await AuthService.GetToken();
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                Navigation.NavigateTo("/login");
+                return;
+            }
+
+            messages = await MessageService.GetInbox();
+
+            StateHasChanged();
+        }
+    }
+}

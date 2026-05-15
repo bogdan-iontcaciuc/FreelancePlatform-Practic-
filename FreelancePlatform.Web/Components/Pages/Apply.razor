@@ -1,0 +1,81 @@
+﻿@page "/apply/{Id:int}"
+@rendermode InteractiveServer
+@inject MessageService MessageService
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<h2>Aplică la anunț</h2>
+
+<div class="card p-4 shadow">
+
+    <label class="mb-2">
+        Mesaj
+    </label>
+
+    <textarea class="form-control"
+              rows="8"
+                  @bind="message">
+    </textarea>
+
+        <button class="btn btn-success mt-4"
+                @onclick="Send">
+            Trimite aplicația
+        </button>
+
+        @if (!string.IsNullOrWhiteSpace(status))
+        {
+            <div class="alert alert-info mt-3">
+                @status
+            </div>
+        }
+
+    </div>
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private string message = "";
+
+    private string status = "";
+
+    protected override async Task OnAfterRenderAsync(
+    bool firstRender)
+    {
+        if (firstRender)
+        {
+            var token = await AuthService.GetToken();
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                Navigation.NavigateTo("/login");
+                return;
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task Send()
+    {
+        var model = new SendMessageModel
+        {
+            AnuntId = Id,
+            Continut = message
+        };
+
+        var response =
+            await MessageService.Send(model);
+
+        if (response.IsSuccessStatusCode)
+        {
+            status = "Aplicație trimisă.";
+        }
+        else
+        {
+            status = await response.Content
+                .ReadAsStringAsync();
+        }
+    }
+}
