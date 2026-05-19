@@ -16,7 +16,9 @@ public class CreateAnuntModel
 
     public string Tehnologii { get; set; } = string.Empty;
 
-    [Range(0, 1000000)]
+    [Required(ErrorMessage = "Prețul/Bugetul este obligatoriu")]
+    [Range(1, 1000000,
+    ErrorMessage = "Prețul/Bugetul trebuie să fie mai mare decât 0")]
     public decimal PretSauBuget { get; set; }
 
 }

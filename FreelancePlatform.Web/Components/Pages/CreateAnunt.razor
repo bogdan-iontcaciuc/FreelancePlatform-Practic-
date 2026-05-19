@@ -114,7 +114,10 @@
                                 </label>
 
                                 <InputNumber class="form-control"
+                                             min="1"
                                              @bind-Value="model.PretSauBuget" />
+
+                                <ValidationMessage For="@(() => model.PretSauBuget)" />
 
                             </div>
 
@@ -164,6 +167,12 @@
         border-radius: 12px;
         padding: 12px;
         font-weight: 600;
+    }
+
+    .validation-message {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 5px;
     }
 
 </style>
