@@ -40,8 +40,7 @@ else
 
     private List<MessageModel> messages = new();
 
-    protected override async Task OnAfterRenderAsync(
-    bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
@@ -53,6 +52,7 @@ else
                 return;
             }
 
+            await AuthService.AddTokenToHeader();
             messages = await MessageService.GetInbox();
 
             StateHasChanged();

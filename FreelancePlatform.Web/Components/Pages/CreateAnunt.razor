@@ -171,8 +171,20 @@
 @code {
 
     private CreateAnuntModel model = new();
+    private string message = "";
 
-    private string message = string.Empty;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var token = await AuthService.GetToken();
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                Navigation.NavigateTo("/login?returnUrl=/creeaza-anunt");
+            }
+        }
+    }
 
     private async Task HandleSubmit()
     {

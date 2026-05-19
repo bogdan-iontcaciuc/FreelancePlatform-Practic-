@@ -1,6 +1,8 @@
 ﻿@page "/anunt/{Id:int}"
 @rendermode InteractiveServer
 @inject AnuntService AnuntService
+@inject NavigationManager Navigation
+@inject AuthService AuthService
 
 <h2 class="mb-4">Detalii anunț</h2>
 
@@ -50,10 +52,10 @@ else
             @anunt.NumeUtilizator
         </div>
 
-        <a class="btn btn-success mt-4"
-               href="/apply/@anunt.Id">
+        <button class="btn btn-success mt-4"
+                @onclick="Apply">
             Aplică
-        </a>
+        </button>
 
     </div>
 }
@@ -68,5 +70,17 @@ else
     protected override async Task OnInitializedAsync()
     {
         anunt = await AnuntService.GetById(Id);
+    }
+    private async Task Apply()
+    {
+        var token = await AuthService.GetToken();
+
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            Navigation.NavigateTo($"/login?returnUrl=/anunt/{Id}");
+            return;
+        }
+
+        Navigation.NavigateTo($"/apply/{Id}");
     }
 }
