@@ -33,49 +33,33 @@
 
 @code {
 
-    [Parameter]
-    public int Id { get; set; }
+    [Parameter] public int Id { get; set; }
 
     private string message = "";
-
     private string status = "";
 
-    protected override async Task OnAfterRenderAsync(
-    bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender)
+        var token = await AuthService.GetToken();
+
+        if (string.IsNullOrWhiteSpace(token))
         {
-            var token = await AuthService.GetToken();
-
-            if (string.IsNullOrWhiteSpace(token))
-            {
-                Navigation.NavigateTo("/login");
-                return;
-            }
-
-            StateHasChanged();
+            Navigation.NavigateTo($"/login?returnUrl=/apply/{Id}");
         }
     }
 
     private async Task Send()
     {
-        var model = new SendMessageModel
+        await AuthService.AddTokenToHeader();
+
+        var response = await MessageService.Send(new SendMessageModel
         {
             AnuntId = Id,
             Continut = message
-        };
+        });
 
-        var response =
-            await MessageService.Send(model);
-
-        if (response.IsSuccessStatusCode)
-        {
-            status = "Aplicație trimisă.";
-        }
-        else
-        {
-            status = await response.Content
-                .ReadAsStringAsync();
-        }
+        status = response.IsSuccessStatusCode
+            ? "Aplicație trimisă"
+            : await response.Content.ReadAsStringAsync();
     }
 }

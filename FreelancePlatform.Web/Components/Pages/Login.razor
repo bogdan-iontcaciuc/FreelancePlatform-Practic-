@@ -1,5 +1,4 @@
-﻿@page "/"
-@page "/login"
+﻿@page "/login"
 
 @rendermode InteractiveServer
 @layout Layout.AuthLayout
@@ -16,28 +15,33 @@
 
     <h2 class="text-center">Logare</h2>
 
-    <EditForm Model="@model"
-              OnValidSubmit="HandleLogin">
+    <EditForm Model="@model" OnValidSubmit="HandleLogin">
 
         <DataAnnotationsValidator />
         <ValidationSummary />
 
-        <InputText @bind-Value="model.Email"
-                   class="form-control"
-                   placeholder="Email" />
+        <div class="mb-3">
+            <label class="form-label">
+                Email
+            </label>
 
-        <ValidationMessage For="@(() => model.Email)" />
-        <br />
+            <InputText @bind-Value="model.Email"
+                       class="form-control"
+                       placeholder="Email" />
+        </div>
 
-        <InputText @bind-Value="model.Password"
-                   class="form-control"
-                   type="password"
-                   placeholder="Parola" />
+        <div class="mb-3">
+            <label class="form-label">
+                Parola
+            </label>
 
-        <ValidationMessage For="@(() => model.Password)" />
-        <br />
+            <InputText @bind-Value="model.Password"
+                       class="form-control"
+                       type="password"
+                       placeholder="Parola" />
+        </div>
 
-        <button type="submit" class="btn btn-primary w-100">
+        <button type="submit" class="btn btn-primary w-100 mt-3">
             Logare
         </button>
 
@@ -45,49 +49,40 @@
 
     @if (!string.IsNullOrEmpty(message))
     {
-        <div class="alert @(isSuccess ? "alert-success" : "alert-danger") mt-3">
+        <div class="alert mt-3 @(isSuccess ? "alert-success" : "alert-danger")">
             @message
         </div>
     }
-
-    <p class="text-center mt-3">
-        Dacă nu ai cont,
-        <a href="/register">înregistrează-te aici</a>
-    </p>
 
 </div>
 
 @code {
 
+    [SupplyParameterFromQuery]
+    public string? returnUrl { get; set; }
+
     private LoginModel model = new();
-
-    private bool isSuccess = false;
-
+    private bool isSuccess;
     private string message = "";
 
     private async Task HandleLogin()
     {
-        var response = await AuthService.Login(
-            model.Email,
-            model.Password
-        );
+        var response = await AuthService.Login(model.Email, model.Password);
 
         isSuccess = response.IsSuccessStatusCode;
 
-        if (response.IsSuccessStatusCode)
+        if (isSuccess)
         {
-            var result = await response.Content
-                .ReadFromJsonAsync<Models.LoginResponse>();
+            var result = await response.Content.ReadFromJsonAsync<Models.LoginResponse>();
 
             if (result != null)
             {
                 await AuthService.SaveToken(result.Token);
-
                 await AuthService.AddTokenToHeader();
 
-                message = "Logare reușită!";
-
-                Navigation.NavigateTo("/home");
+                Navigation.NavigateTo(
+    string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl
+);
             }
         }
         else
@@ -98,11 +93,10 @@
 
     public class LoginModel
     {
-        [Required(ErrorMessage = "Email obligatoriu")]
-        [EmailAddress(ErrorMessage = "Email invalid")]
+        [Required]
         public string Email { get; set; } = "";
 
-        [Required(ErrorMessage = "Parola este obligatorie")]
+        [Required]
         public string Password { get; set; } = "";
     }
 }
