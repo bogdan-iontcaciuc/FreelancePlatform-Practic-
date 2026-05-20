@@ -1,6 +1,6 @@
 ﻿@page "/apply/{Id:int}"
 @rendermode InteractiveServer
-@inject MessageService MessageService
+@inject ApplicationService ApplicationService
 @inject AuthService AuthService
 @inject NavigationManager Navigation
 
@@ -50,13 +50,10 @@
 
     private async Task Send()
     {
-        await AuthService.AddTokenToHeader();
-
-        var response = await MessageService.Send(new SendMessageModel
-        {
-            AnuntId = Id,
-            Continut = message
-        });
+        var response = await ApplicationService.Apply(
+            Id,
+            message
+        );
 
         status = response.IsSuccessStatusCode
             ? "Aplicație trimisă"

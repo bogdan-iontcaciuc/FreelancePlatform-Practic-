@@ -1,0 +1,133 @@
+﻿@page "/chat/{OrderId:int}"
+@rendermode InteractiveServer
+@inject MessageService MessageService
+@inject OrderService OrderService
+
+<h2 class="mb-4">Chat Order</h2>
+
+<div class="border rounded p-3 mb-4"
+     style="height:500px; overflow-y:auto;">
+
+    @foreach (var message in messages)
+    {
+        <div class="card p-3 mb-3">
+
+            <strong>
+                @message.Expeditor
+            </strong>
+
+            @if (message.EsteLivrare)
+            {
+                <div class="badge bg-success mb-2">
+                    LIVRARE
+                </div>
+            }
+
+            <p>
+                @message.Continut
+            </p>
+
+            @if (!string.IsNullOrWhiteSpace(message.FisierUrl))
+            {
+                <a href="@message.FisierUrl"
+                       target="_blank">
+                    Deschide fișier
+                </a>
+            }
+
+            <small>
+                @message.DataTrimiterii
+            </small>
+
+        </div>
+    }
+
+</div>
+
+<textarea class="form-control"
+          rows="6"
+              @bind="messageText">
+</textarea>
+    <input class="form-control mt-3"
+           placeholder="Link fișier (opțional)"
+           @bind="fileUrl" />
+
+    <div class="d-flex gap-3 mt-3">
+
+        <button class="btn btn-primary"
+                @onclick="SendMessage">
+            Trimite mesaj
+        </button>
+
+        <button class="btn btn-success"
+                @onclick="DeliverWork">
+            Livrează produsul
+        </button>
+
+        <button class="btn btn-dark"
+                @onclick="CompleteOrder">
+            Confirmă finalizarea
+        </button>
+
+    </div>
+    @code {
+
+    [Parameter]
+    public int OrderId { get; set; }
+
+    private List<MessageDto> messages = new();
+
+    private string messageText = "";
+
+    private string fileUrl = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMessages();
+    }
+
+    private async Task LoadMessages()
+    {
+        messages = await MessageService
+            .GetMessages(OrderId);
+    }
+
+    private async Task SendMessage()
+    {
+        await MessageService.Send(new SendMessageModel
+        {
+            OrderId = OrderId,
+            Continut = messageText,
+            FisierUrl = fileUrl,
+            EsteLivrare = false
+        });
+
+        messageText = "";
+        fileUrl = "";
+
+        await LoadMessages();
+    }
+
+    private async Task DeliverWork()
+    {
+        await MessageService.Send(new SendMessageModel
+        {
+            OrderId = OrderId,
+            Continut = messageText,
+            FisierUrl = fileUrl,
+            EsteLivrare = true
+        });
+
+        messageText = "";
+        fileUrl = "";
+
+        await LoadMessages();
+    }
+
+    private async Task CompleteOrder()
+    {
+        await OrderService.CompleteOrder(OrderId);
+
+        await LoadMessages();
+    }
+}

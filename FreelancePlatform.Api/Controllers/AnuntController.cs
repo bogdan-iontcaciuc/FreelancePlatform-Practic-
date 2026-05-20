@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 [ApiController]
@@ -8,9 +9,14 @@ public class AnuntController : ControllerBase
 {
     private readonly AnuntService _anuntService;
 
-    public AnuntController(AnuntService anuntService)
+    private readonly AppDbContext _context;
+
+    public AnuntController(
+        AnuntService anuntService,
+        AppDbContext context)
     {
         _anuntService = anuntService;
+        _context = context;
     }
 
     [Authorize]
@@ -65,5 +71,20 @@ public class AnuntController : ControllerBase
         }
 
         return Ok(anunt);
+    }
+    [Authorize]
+    [HttpGet("my")]
+    public async Task<IActionResult> GetMine()
+    {
+        var userIdClaim =
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        int userId = int.Parse(userIdClaim!);
+
+        var result = await _context.Anunturi
+            .Where(a => a.UtilizatorId == userId)
+            .ToListAsync();
+
+        return Ok(result);
     }
 }

@@ -38,4 +38,12 @@ public class AnuntService
             $"api/anunturi/{id}"
         );
     }
+    public async Task<List<AnuntModel>> GetMine()
+    {
+        await _authService.AddTokenToHeader();
+
+        return await _http.GetFromJsonAsync<List<AnuntModel>>(
+            "api/anunturi/my"
+        ) ?? new();
+    }
 }

@@ -19,18 +19,28 @@
 
             @if (isInitialized && isAuthenticated)
             {
-                <a href="/inbox" class="btn btn-outline-dark">
+                <a href="/orders" class="btn btn-outline-dark">
                     Inbox
                 </a>
 
-                <a href="/creeaza-anunt" class="btn btn-success">
-                    Creează anunț
-                </a>
 
-                <button class="btn btn-outline-danger" @onclick="Logout">
-                    Logout
-                </button>
-            }
+                <a href = "/my-announcements"
+                class= "btn btn-outline-dark" >
+                Anunțurile mele
+                </a >
+
+                <a href = "/creeaza-anunt"
+                class= "btn btn-success" >
+                Creează anunț
+                </a >
+
+                <button class= "btn btn-outline-danger"
+                @onclick = "Logout" >
+                Logout
+                </button >
+
+}
+
             else if (isInitialized)
             {
                 <a href="/login" class="btn btn-outline-dark">
