@@ -1,0 +1,78 @@
+﻿@page "/applications/{AnuntId:int}"
+@rendermode InteractiveServer
+
+@inject ApplicationService ApplicationService
+@inject OrderService OrderService
+
+<h2 class="mb-4">Aplicații</h2>
+
+@if (!applications.Any())
+{
+    <div class="alert alert-info">
+        Nu există aplicații.
+    </div>
+}
+else
+{
+    @foreach (var app in applications)
+    {
+        <div class="card shadow-sm mb-3">
+
+            ```
+            <div class="card-body">
+
+                <h5>
+                    @app.Freelancer
+                </h5>
+
+                <p>
+                    @app.MesajAplicare
+                </p>
+
+                <p>
+                    Status:
+                    @app.Status
+                </p>
+
+                @if (app.Status == "Pending")
+                {
+                    <button class="btn btn-success"
+                            @onclick="() => Accept(app.Id)">
+                        Acceptă
+                    </button>
+                }
+
+            </div>
+
+        </div>
+    }
+
+
+}
+
+@code {
+
+
+[Parameter]
+    public int AnuntId { get; set; }
+
+    private List<ApplicationModel> applications = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        applications =
+            await ApplicationService
+                .GetApplications(AnuntId);
+    }
+
+    private async Task Accept(int applicationId)
+    {
+        await OrderService
+            .CreateFromApplication(applicationId);
+
+        applications =
+            await ApplicationService
+                .GetApplications(AnuntId);
+    }
+
+}

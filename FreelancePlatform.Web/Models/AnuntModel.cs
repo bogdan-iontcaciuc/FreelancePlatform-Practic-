@@ -18,5 +18,7 @@
 
     public int UtilizatorId { get; set; }
 
+    public string Status { get; set; } = "";
+
     public string? NumeUtilizator { get; set; }
 }

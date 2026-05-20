@@ -71,9 +71,7 @@ public class AuthController : ControllerBase
 
         return Ok(new LoginResponse
         {
-            Token = token,
-            Email = user.Email,
-            NumeComplet = user.NumeComplet
+            Token = token
         });
     }
 

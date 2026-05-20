@@ -19,10 +19,13 @@ public class Message
 
     public User? Destinatar { get; set; }
 
-    [Required]
-    public int AnuntId { get; set; }
+    public int? OrderId { get; set; }
 
-    public Anunt? Anunt { get; set; }
+    public Order? Order { get; set; }
+
+    public bool EsteLivrare { get; set; } = false;
+
+    public string? FisierUrl { get; set; }
 
     public DateTime DataTrimiterii { get; set; }
         = DateTime.UtcNow;

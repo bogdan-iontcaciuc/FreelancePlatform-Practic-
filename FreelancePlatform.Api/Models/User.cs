@@ -1,5 +1,6 @@
 ﻿
 using FreelancePlatform.Api.Models;
+using static System.Net.Mime.MediaTypeNames;
 
 public class User
 
@@ -14,4 +15,12 @@ public class User
 
     public ICollection<Message> MesajePrimite { get; set; }
         = new List<Message>();
+    public ICollection<Application> Aplicatii { get; set; }
+    = new List<Application>();
+
+    public ICollection<Order> OrdersAsBuyer { get; set; }
+        = new List<Order>();
+
+    public ICollection<Order> OrdersAsFreelancer { get; set; }
+        = new List<Order>();
 }

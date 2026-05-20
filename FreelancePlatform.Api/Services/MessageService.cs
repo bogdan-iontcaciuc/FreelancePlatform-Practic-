@@ -14,48 +14,82 @@ public class MessageService
         int senderId,
         SendMessageRequest request)
     {
-        var anunt = await _context.Anunturi
-            .FirstOrDefaultAsync(a => a.Id == request.AnuntId);
+        var order = await _context.Orders
+            .FirstOrDefaultAsync(o => o.Id == request.OrderId);
 
-        if (anunt == null)
+        if (order == null)
         {
-            return (false, "Anunțul nu există.");
+            return (false, "Order inexistent.");
         }
 
-        if (anunt.UtilizatorId == senderId)
+        bool isBuyer = order.BuyerId == senderId;
+        bool isFreelancer = order.FreelancerId == senderId;
+        if (!isBuyer && !isFreelancer)
         {
-            return (false, "Nu poți aplica la propriul anunț.");
+            return (false, "Nu ai acces la acest chat.");
         }
+
+        int receiverId = isBuyer
+            ? order.FreelancerId
+            : order.BuyerId;
+
         var message = new Message
         {
             Continut = request.Continut,
             ExpeditorId = senderId,
-            DestinatarId = anunt.UtilizatorId,
-            AnuntId = anunt.Id
+            DestinatarId = receiverId,
+            OrderId = request.OrderId,
+            EsteLivrare = request.EsteLivrare,
+            FisierUrl = request.FisierUrl
         };
 
         _context.Messages.Add(message);
-        await _context.SaveChangesAsync();
 
+        if (request.EsteLivrare)
+        {
+            order.Status = "Delivered";
+            order.DeliveredAt = DateTime.UtcNow;
+        }
+
+        await _context.SaveChangesAsync();
         return (true, "Mesaj trimis.");
     }
-    public async Task<List<InboxMessageDto>> GetInbox(int userId)
+
+    public async Task<List<MessageDto>> GetMessages(
+        int orderId,
+        int userId)
     {
+        var order = await _context.Orders
+            .FirstOrDefaultAsync(o => o.Id == orderId);
+
+        if (order == null)
+        {
+            return new List<MessageDto>();
+        }
+
+        bool hasAccess =
+            order.BuyerId == userId ||
+            order.FreelancerId == userId;
+
+        if (!hasAccess)
+        {
+            return new List<MessageDto>();
+        }
+
         return await _context.Messages
             .Include(m => m.Expeditor)
-            .Include(m => m.Anunt)
-            .Where(m => m.DestinatarId == userId)
-            .OrderByDescending(m => m.DataTrimiterii)
-            .Select(m => new InboxMessageDto
+            .Where(m => m.OrderId == orderId)
+            .OrderBy(m => m.DataTrimiterii)
+            .Select(m => new MessageDto
             {
                 Id = m.Id,
                 Continut = m.Continut,
+                ExpeditorId = m.ExpeditorId,
                 Expeditor = m.Expeditor != null
                     ? m.Expeditor.NumeComplet
-                    : "Utilizator necunoscut",
-                TitluAnunt = m.Anunt != null
-                    ? m.Anunt.Titlu
-                    : "Anunț necunoscut",
+                    : "Necunoscut",
+                EsteLivrare = m.EsteLivrare,
+                FisierUrl = m.FisierUrl,
                 DataTrimiterii = m.DataTrimiterii
             })
             .ToListAsync();

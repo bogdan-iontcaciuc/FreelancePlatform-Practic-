@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace FreelancePlatform.Api.Models;
 
@@ -37,4 +38,9 @@ public class Anunt
     public User? Utilizator { get; set; }
     public ICollection<Message> Mesaje { get; set; }
     = new List<Message>();
+    public ICollection<Application> Aplicatii { get; set; }
+    = new List<Application>();
+
+    public ICollection<Order> Orders { get; set; }
+        = new List<Order>();
 }

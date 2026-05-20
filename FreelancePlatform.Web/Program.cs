@@ -21,7 +21,10 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AnuntService>();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<MessageService>();
+builder.Services.AddScoped<ApplicationService>();
+builder.Services.AddScoped<OrderService>();
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

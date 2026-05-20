@@ -1,12 +1,11 @@
 ﻿using System.Net.Http.Json;
 
-public class MessageService
+public class ApplicationService
 {
     private readonly HttpClient _http;
-
     private readonly AuthService _authService;
 
-    public MessageService(
+    public ApplicationService(
         HttpClient http,
         AuthService authService)
     {
@@ -14,25 +13,29 @@ public class MessageService
         _authService = authService;
     }
 
-    public async Task<HttpResponseMessage> Send(
-        SendMessageModel model)
+    public async Task<HttpResponseMessage> Apply(
+        int anuntId,
+        string mesaj)
     {
         await _authService.AddTokenToHeader();
 
         return await _http.PostAsJsonAsync(
-            "api/messages",
-            model
-        );
+            "api/applications",
+            new
+            {
+                AnuntId = anuntId,
+                MesajAplicare = mesaj
+            });
     }
 
-    public async Task<List<MessageDto>>
-        GetMessages(int orderId)
+    public async Task<List<ApplicationModel>>
+        GetApplications(int anuntId)
     {
         await _authService.AddTokenToHeader();
 
         return await _http.GetFromJsonAsync<
-            List<MessageDto>>(
-            $"api/messages/order/{orderId}"
+            List<ApplicationModel>>(
+            $"api/applications/anunt/{anuntId}"
         ) ?? new();
     }
 }

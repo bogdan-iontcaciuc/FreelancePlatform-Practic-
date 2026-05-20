@@ -21,16 +21,10 @@ public class MessageController : ControllerBase
         var userIdClaim =
             User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (userIdClaim == null)
-        {
-            return Unauthorized();
-        }
-
-        int userId = int.Parse(userIdClaim);
+        int userId = int.Parse(userIdClaim!);
 
         var result = await _messageService
             .SendMessage(userId, request);
-
         if (!result.Success)
         {
             return BadRequest(result.Message);
@@ -40,17 +34,17 @@ public class MessageController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("inbox")]
-    public async Task<IActionResult> Inbox()
+    [HttpGet("order/{orderId}")]
+    public async Task<IActionResult> GetMessages(int orderId)
     {
         var userIdClaim =
             User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         int userId = int.Parse(userIdClaim!);
 
-        var messages = await _messageService
-            .GetInbox(userId);
+        var result = await _messageService
+            .GetMessages(orderId, userId);
 
-        return Ok(messages);
+        return Ok(result);
     }
 }

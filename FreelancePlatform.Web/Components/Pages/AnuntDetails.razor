@@ -1,5 +1,6 @@
 ﻿@page "/anunt/{Id:int}"
 @rendermode InteractiveServer
+
 @inject AnuntService AnuntService
 @inject NavigationManager Navigation
 @inject AuthService AuthService
@@ -52,10 +53,23 @@ else
             @anunt.NumeUtilizator
         </div>
 
-        <button class="btn btn-success mt-4"
-                @onclick="Apply">
-            Aplică
-        </button>
+        @if (isLoggedIn)
+        {
+            @if (isOwner)
+            {
+                <button class="btn btn-primary mt-4"
+                        @onclick="OpenApplications">
+                    Vezi aplicațiile
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-success mt-4"
+                        @onclick="GoToApply">
+                    Aplică
+                </button>
+            }
+        }
 
     </div>
 }
@@ -67,20 +81,70 @@ else
 
     private AnuntModel? anunt;
 
+    private bool isLoggedIn = false;
+
+    private bool isOwner = false;
+
     protected override async Task OnInitializedAsync()
     {
         anunt = await AnuntService.GetById(Id);
-    }
-    private async Task Apply()
-    {
+
         var token = await AuthService.GetToken();
 
-        if (string.IsNullOrWhiteSpace(token))
-        {
-            Navigation.NavigateTo($"/login?returnUrl=/anunt/{Id}");
-            return;
-        }
+        isLoggedIn = !string.IsNullOrWhiteSpace(token);
 
+        if (anunt != null)
+        {
+            isOwner = await IsOwner(anunt.UtilizatorId);
+        }
+    }
+
+    private void GoToApply()
+    {
         Navigation.NavigateTo($"/apply/{Id}");
+    }
+
+    private void OpenApplications()
+    {
+        Navigation.NavigateTo($"/applications/{Id}");
+    }
+
+    private async Task<bool> IsOwner(int ownerId)
+    {
+        try
+        {
+            var token = await AuthService.GetToken();
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                return false;
+            }
+
+            var payload = token.Split('.')[1];
+
+            payload = payload.PadRight(
+                payload.Length + (4 - payload.Length % 4) % 4,
+                '=');
+
+            var jsonBytes =
+                Convert.FromBase64String(payload);
+
+            var json =
+                System.Text.Encoding.UTF8.GetString(jsonBytes);
+
+            using var document =
+                System.Text.Json.JsonDocument.Parse(json);
+
+            var userId =
+                document.RootElement
+                    .GetProperty("nameid")
+                    .GetString();
+
+            return int.Parse(userId!) == ownerId;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
