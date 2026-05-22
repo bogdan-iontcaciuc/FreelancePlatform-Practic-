@@ -84,4 +84,66 @@ public class AnuntService
             })
             .FirstOrDefaultAsync();
     }
+    public async Task<(bool Success, string Message)> UpdateAnunt(
+    int id,
+    int userId,
+    UpdateAnuntRequest request)
+    {
+        var anunt = await _context.Anunturi
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (anunt == null)
+        {
+            return (false, "Anunțul nu există.");
+        }
+
+        if (anunt.UtilizatorId != userId)
+        {
+            return (false, "Nu ai acces.");
+        }
+
+        anunt.Titlu = request.Titlu;
+        anunt.Descriere = request.Descriere;
+        anunt.Categorie = request.Categorie;
+        anunt.TipAnunt = request.TipAnunt;
+        anunt.Tehnologii = request.Tehnologii;
+        anunt.PretSauBuget = request.PretSauBuget;
+
+        await _context.SaveChangesAsync();
+
+        return (true, "Anunț actualizat.");
+    }
+
+    public async Task<(bool Success, string Message)> DeleteAnunt(
+        int id,
+        int userId)
+    {
+        var anunt = await _context.Anunturi
+            .Include(a => a.Aplicatii)
+            .Include(a => a.Orders)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (anunt == null)
+        {
+            return (false, "Anunțul nu există.");
+        }
+
+        if (anunt.UtilizatorId != userId)
+        {
+            return (false, "Nu ai acces.");
+        }
+
+        if (anunt.Orders.Any())
+        {
+            return (false, "Nu poți șterge un anunț cu order activ.");
+        }
+
+        _context.Applications.RemoveRange(anunt.Aplicatii);
+
+        _context.Anunturi.Remove(anunt);
+
+        await _context.SaveChangesAsync();
+
+        return (true, "Anunț șters.");
+    }
 }

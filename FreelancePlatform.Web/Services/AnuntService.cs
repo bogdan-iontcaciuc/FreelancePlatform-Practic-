@@ -46,4 +46,22 @@ public class AnuntService
             "api/anunturi/my"
         ) ?? new();
     }
+    public async Task<HttpResponseMessage> Update(
+    int id,
+    UpdateAnuntModel model)
+    {
+        await _authService.AddTokenToHeader();
+
+        return await _http.PutAsJsonAsync(
+            $"api/anunturi/{id}",
+            model);
+    }
+
+    public async Task<HttpResponseMessage> Delete(int id)
+    {
+        await _authService.AddTokenToHeader();
+
+        return await _http.DeleteAsync(
+            $"api/anunturi/{id}");
+    }
 }

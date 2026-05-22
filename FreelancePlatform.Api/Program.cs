@@ -86,6 +86,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<ApplicationService>();
 builder.Services.AddScoped<OrderService>();
+builder.Services.AddDirectoryBrowser();
 
 var app = builder.Build();
 
@@ -104,7 +105,7 @@ app.UseCors("AllowBlazor");
 // JWT
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseStaticFiles();
 app.MapControllers();
 
 app.Run();

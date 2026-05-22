@@ -87,4 +87,45 @@ public class AnuntController : ControllerBase
 
         return Ok(result);
     }
+    [Authorize]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(
+    int id,
+    [FromBody] UpdateAnuntRequest request)
+    {
+        var userIdClaim =
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        int userId = int.Parse(userIdClaim!);
+
+        var result = await _anuntService
+            .UpdateAnunt(id, userId, request);
+
+        if (!result.Success)
+        {
+            return BadRequest(result.Message);
+        }
+
+        return Ok(result.Message);
+    }
+
+    [Authorize]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var userIdClaim =
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        int userId = int.Parse(userIdClaim!);
+
+        var result = await _anuntService
+            .DeleteAnunt(id, userId);
+
+        if (!result.Success)
+        {
+            return BadRequest(result.Message);
+        }
+
+        return Ok(result.Message);
+    }
 }

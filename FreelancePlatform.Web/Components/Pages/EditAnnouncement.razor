@@ -1,0 +1,124 @@
+﻿@page "/edit-announcement/{Id:int}"
+@rendermode InteractiveServer
+
+@inject AnuntService AnuntService
+@inject NavigationManager Navigation
+
+<h2 class="mb-4">Editează anunț</h2>
+
+<EditForm Model="model"
+          OnValidSubmit="Save">
+
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText class="form-control mb-3"
+               @bind-Value="model.Titlu" />
+
+    <InputTextArea class="form-control mb-3"
+                   rows="6"
+                   @bind-Value="model.Descriere" />
+
+    <div class="mb-3">
+
+        <label class="form-label">
+            Categorie
+        </label>
+
+        <select class="form-control"
+                @bind="model.Categorie">
+
+            <option value="IT">IT</option>
+            <option value="Design">Design</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Traducere">Traducere</option>
+            <option value="Scriere">Scriere</option>
+
+        </select>
+
+    </div>
+
+    <div class="mb-3">
+
+        <label class="form-label">
+            Tip anunț
+        </label>
+
+        <select class="form-control"
+                @bind="model.TipAnunt">
+
+            <option value="Caut serviciu">
+                Caut serviciu
+            </option>
+
+            <option value="Ofer servicii">
+                Ofer servicii
+            </option>
+
+        </select>
+
+    </div>
+
+    <div class="mb-3">
+
+        <label class="form-label">
+            Tehnologii
+        </label>
+
+        <select class="form-control"
+                @bind="model.Tehnologii">
+
+            <option value="C#">C#</option>
+            <option value=".NET">.NET</option>
+            <option value="React">React</option>
+            <option value="SQL">SQL</option>
+            <option value="JavaScript">JavaScript</option>
+
+        </select>
+
+    </div>
+
+    <InputNumber class="form-control mb-3"
+                 @bind-Value="model.PretSauBuget" />
+
+    <button class="btn btn-success">
+        Salvează
+    </button>
+
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private UpdateAnuntModel model = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var anunt = await AnuntService.GetById(Id);
+
+        if (anunt == null)
+        {
+            return;
+        }
+
+        model.Titlu = anunt.Titlu;
+        model.Descriere = anunt.Descriere;
+        model.Categorie = anunt.Categorie;
+        model.TipAnunt = anunt.TipAnunt;
+        model.Tehnologii = anunt.Tehnologii;
+        model.PretSauBuget = anunt.PretSauBuget;
+    }
+
+    private async Task Save()
+    {
+        var response =
+            await AnuntService.Update(Id, model);
+
+        if (response.IsSuccessStatusCode)
+        {
+            Navigation.NavigateTo("/my-announcements");
+        }
+    }
+}

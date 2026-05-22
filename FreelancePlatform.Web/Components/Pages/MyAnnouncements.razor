@@ -35,6 +35,15 @@
                                href="/anunt/@anunt.Id">
                             Detalii
                         </a>
+                        <a class="btn btn-warning"
+       href="/edit-announcement/@anunt.Id">
+        Editare
+    </a>
+
+    <button class="btn btn-danger"
+            @onclick="() => DeleteAnnouncement(anunt.Id)">
+        Șterge
+                        </button>
 
                     </div>
 
@@ -58,5 +67,14 @@
     protected override async Task OnInitializedAsync()
     {
         anunturi = await AnuntService.GetMine();
+    }
+    private async Task DeleteAnnouncement(int id)
+    {
+        var response = await AnuntService.Delete(id);
+
+        if (response.IsSuccessStatusCode)
+        {
+            anunturi = await AnuntService.GetMine();
+        }
     }
 }

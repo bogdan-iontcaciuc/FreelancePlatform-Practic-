@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreelancePlatform.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260515092358_AddMessages")]
-    partial class AddMessages
+    [Migration("20260522150414_DbFreelance")]
+    partial class DbFreelance
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,6 +23,40 @@ namespace FreelancePlatform.Api.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Application", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AnuntId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DataAplicarii")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FreelancerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MesajAplicare")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnuntId");
+
+                    b.HasIndex("FreelancerId");
+
+                    b.ToTable("Applications");
+                });
 
             modelBuilder.Entity("FreelancePlatform.Api.Models.Anunt", b =>
                 {
@@ -82,7 +116,7 @@ namespace FreelancePlatform.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AnuntId")
+                    b.Property<int?>("AnuntId")
                         .HasColumnType("int");
 
                     b.Property<string>("Continut")
@@ -95,7 +129,16 @@ namespace FreelancePlatform.Api.Migrations
                     b.Property<int>("DestinatarId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("EsteLivrare")
+                        .HasColumnType("bit");
+
                     b.Property<int>("ExpeditorId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FisierUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("OrderId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -106,7 +149,50 @@ namespace FreelancePlatform.Api.Migrations
 
                     b.HasIndex("ExpeditorId");
 
+                    b.HasIndex("OrderId");
+
                     b.ToTable("Messages");
+                });
+
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AnuntId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BuyerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeliveredAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FreelancerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnuntId");
+
+                    b.HasIndex("BuyerId");
+
+                    b.HasIndex("FreelancerId");
+
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("User", b =>
@@ -134,6 +220,25 @@ namespace FreelancePlatform.Api.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Application", b =>
+                {
+                    b.HasOne("FreelancePlatform.Api.Models.Anunt", "Anunt")
+                        .WithMany("Aplicatii")
+                        .HasForeignKey("AnuntId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("User", "Freelancer")
+                        .WithMany("Aplicatii")
+                        .HasForeignKey("FreelancerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Anunt");
+
+                    b.Navigation("Freelancer");
+                });
+
             modelBuilder.Entity("FreelancePlatform.Api.Models.Anunt", b =>
                 {
                     b.HasOne("User", "Utilizator")
@@ -147,11 +252,9 @@ namespace FreelancePlatform.Api.Migrations
 
             modelBuilder.Entity("FreelancePlatform.Api.Models.Message", b =>
                 {
-                    b.HasOne("FreelancePlatform.Api.Models.Anunt", "Anunt")
+                    b.HasOne("FreelancePlatform.Api.Models.Anunt", null)
                         .WithMany("Mesaje")
-                        .HasForeignKey("AnuntId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AnuntId");
 
                     b.HasOne("User", "Destinatar")
                         .WithMany("MesajePrimite")
@@ -165,25 +268,71 @@ namespace FreelancePlatform.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Anunt");
+                    b.HasOne("Order", "Order")
+                        .WithMany("Messages")
+                        .HasForeignKey("OrderId");
 
                     b.Navigation("Destinatar");
 
                     b.Navigation("Expeditor");
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.HasOne("FreelancePlatform.Api.Models.Anunt", "Anunt")
+                        .WithMany("Orders")
+                        .HasForeignKey("AnuntId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("User", "Buyer")
+                        .WithMany("OrdersAsBuyer")
+                        .HasForeignKey("BuyerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("User", "Freelancer")
+                        .WithMany("OrdersAsFreelancer")
+                        .HasForeignKey("FreelancerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Anunt");
+
+                    b.Navigation("Buyer");
+
+                    b.Navigation("Freelancer");
                 });
 
             modelBuilder.Entity("FreelancePlatform.Api.Models.Anunt", b =>
                 {
+                    b.Navigation("Aplicatii");
+
                     b.Navigation("Mesaje");
+
+                    b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("User", b =>
                 {
                     b.Navigation("Anunturi");
 
+                    b.Navigation("Aplicatii");
+
                     b.Navigation("MesajePrimite");
 
                     b.Navigation("MesajeTrimise");
+
+                    b.Navigation("OrdersAsBuyer");
+
+                    b.Navigation("OrdersAsFreelancer");
                 });
 #pragma warning restore 612, 618
         }
