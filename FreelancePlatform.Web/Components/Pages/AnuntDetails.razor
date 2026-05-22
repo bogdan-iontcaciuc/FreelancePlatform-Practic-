@@ -50,7 +50,10 @@ else
 
         <div class="mt-3">
             <strong>Utilizator:</strong>
-            @anunt.NumeUtilizator
+            <a href="/profile/@anunt.UtilizatorId"
+                   class="text-decoration-none fw-bold">
+                @anunt.NumeUtilizator
+            </a>
         </div>
 
         @if (isLoggedIn)

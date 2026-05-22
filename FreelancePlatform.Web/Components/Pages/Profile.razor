@@ -1,0 +1,313 @@
+﻿@page "/profile/{id:int}"
+@rendermode InteractiveServer
+
+@inject ProfileService ProfileService
+
+@if (isLoading)
+{
+    <div class="d-flex justify-content-center mt-5">
+        <div class="spinner-border text-success"></div>
+    </div>
+}
+else if (profile == null)
+{
+    <div class="alert alert-danger">
+        Profilul nu există.
+    </div>
+}
+else
+{
+    <div class="profile-container">
+
+        <div class="profile-header">
+
+            <div class="avatar">
+                @profile.NumeComplet.Substring(0, 1)
+            </div>
+
+            <div>
+
+                <h1>@profile.NumeComplet</h1>
+
+                <p class="email">
+                    @profile.Email
+                </p>
+
+                <p class="description">
+                    @(string.IsNullOrWhiteSpace(profile.Descriere)
+                        ? "Acest utilizator nu are încă o descriere."
+                        : profile.Descriere)
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <h2>@profile.TotalAnunturi</h2>
+                <p>Anunțuri</p>
+            </div>
+
+            <div class="stat-card">
+                <h2>@profile.TotalAplicatii</h2>
+                <p>Aplicații</p>
+            </div>
+
+            <div class="stat-card">
+                <h2>@profile.TotalProiecteFinalizate</h2>
+                <p>Proiecte finalizate</p>
+            </div>
+
+        </div>
+
+        <div class="section">
+
+            <h3>Anunțuri publicate</h3>
+
+            @if (!profile.Anunturi.Any())
+            {
+                <div class="empty-box">
+                    Nu există anunțuri.
+                </div>
+            }
+            else
+            {
+                <div class="row">
+
+                    @foreach (var anunt in profile.Anunturi)
+                    {
+                        <div class="col-lg-4 mb-4">
+
+                            <div class="modern-card">
+
+                                <h4>@anunt.Titlu</h4>
+
+                                <p>
+                                    @anunt.Descriere
+                                </p>
+
+                                <div class="tags">
+
+                                    <span>
+                                        @anunt.Categorie
+                                    </span>
+
+                                    <span>
+                                        @anunt.TipAnunt
+                                    </span>
+
+                                </div>
+
+                                <div class="price">
+                                    @anunt.PretSauBuget €
+                                </div>
+
+                                <a class="btn btn-success w-100 mt-3"
+                                       href="/anunt/@anunt.Id">
+                                    Vezi detalii
+                                </a>
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+            }
+
+        </div>
+
+        <div class="section">
+
+            <h3>Proiecte finalizate</h3>
+
+            @if (!profile.ProiecteFinalizate.Any())
+            {
+                <div class="empty-box">
+                    Nu există proiecte finalizate.
+                </div>
+            }
+            else
+            {
+                <div class="row">
+
+                    @foreach (var order in profile.ProiecteFinalizate)
+                    {
+                        <div class="col-lg-4 mb-4">
+
+                            <div class="modern-card">
+
+                                <h4>
+                                    @order.TitluAnunt
+                                </h4>
+
+                                <div class="tags">
+
+                                    <span>
+                                        @order.Categorie
+                                    </span>
+
+                                    <span>
+                                        Finalizat
+                                    </span>
+
+                                </div>
+
+                                <div class="price">
+                                    @order.PretSauBuget €
+                                </div>
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+}
+
+<style>
+
+    body {
+        background: #f4f7fb;
+    }
+
+    .profile-container {
+        max-width: 1300px;
+        margin: auto;
+    }
+
+    .profile-header {
+        background: white;
+        padding: 40px;
+        border-radius: 30px;
+        display: flex;
+        gap: 30px;
+        align-items: center;
+        margin-bottom: 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    .avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: #198754;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 50px;
+        font-weight: bold;
+    }
+
+    .email {
+        color: gray;
+        margin-top: 10px;
+    }
+
+    .description {
+        margin-top: 20px;
+        font-size: 17px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 25px;
+        padding: 35px;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+
+        .stat-card h2 {
+            font-size: 45px;
+            color: #198754;
+            font-weight: bold;
+        }
+
+    .section {
+        margin-bottom: 60px;
+    }
+
+        .section h3 {
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+    .modern-card {
+        background: white;
+        border-radius: 25px;
+        padding: 25px;
+        height: 100%;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        transition: 0.25s;
+    }
+
+        .modern-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .modern-card p {
+            color: gray;
+            margin: 15px 0;
+        }
+
+    .tags {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+        .tags span {
+            background: #eef2f7;
+            padding: 8px 14px;
+            border-radius: 30px;
+            font-size: 14px;
+        }
+
+    .price {
+        margin-top: 20px;
+        font-size: 24px;
+        font-weight: bold;
+        color: #198754;
+    }
+
+    .empty-box {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        color: gray;
+    }
+
+</style>
+
+@code {
+
+    [Parameter]
+    public int id { get; set; }
+
+    private bool isLoading = true;
+
+    private ProfileModel? profile;
+
+    protected override async Task OnInitializedAsync()
+    {
+        profile = await ProfileService.GetProfile(id);
+
+        isLoading = false;
+    }
+
+}
