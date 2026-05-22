@@ -27,4 +27,6 @@ public class Order
 
     public ICollection<Message> Messages { get; set; }
         = new List<Message>();
+    public ICollection<Review> Reviews { get; set; }
+    = new List<Review>();
 }

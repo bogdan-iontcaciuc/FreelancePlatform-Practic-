@@ -24,4 +24,9 @@ public class User
     public ICollection<Order> OrdersAsFreelancer { get; set; }
         = new List<Order>();
     public string Descriere { get; set; } = "";
+    public ICollection<Review> ReviewsReceived { get; set; }
+    = new List<Review>();
+
+    public ICollection<Review> ReviewsWritten { get; set; }
+        = new List<Review>();
 }

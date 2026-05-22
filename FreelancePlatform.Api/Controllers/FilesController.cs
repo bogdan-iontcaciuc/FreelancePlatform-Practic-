@@ -71,11 +71,34 @@ public class FilesController : ControllerBase
         await file.CopyToAsync(stream);
 
         var fileUrl =
-            $"{Request.Scheme}://{Request.Host}/uploads/{uniqueName}";
-
+    $"{Request.Scheme}://{Request.Host}/api/files/download/{uniqueName}";
         return Ok(new
         {
             url = fileUrl
         });
+    }
+    [HttpGet("download/{fileName}")]
+    public IActionResult Download(string fileName)
+    {
+        var uploadsFolder = Path.Combine(
+            _environment.WebRootPath,
+            "uploads");
+
+        var path = Path.Combine(
+            uploadsFolder,
+            fileName);
+
+        if (!System.IO.File.Exists(path))
+        {
+            return NotFound();
+        }
+
+        var bytes = System.IO.File.ReadAllBytes(path);
+
+        return File(
+            bytes,
+            "application/octet-stream",
+            fileName
+        );
     }
 }

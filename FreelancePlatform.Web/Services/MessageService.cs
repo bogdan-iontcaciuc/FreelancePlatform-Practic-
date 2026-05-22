@@ -51,7 +51,7 @@ public class MessageService
         content.Add(fileContent, "file", file.Name);
 
         var response = await _http.PostAsync(
-            "api/messages/upload",
+            "api/files/upload",
             content
         );
 
@@ -60,6 +60,10 @@ public class MessageService
             return "";
         }
 
-        return await response.Content.ReadAsStringAsync();
+        var result =
+            await response.Content
+                .ReadFromJsonAsync<FileUploadResponse>();
+
+        return result?.Url ?? "";
     }
 }

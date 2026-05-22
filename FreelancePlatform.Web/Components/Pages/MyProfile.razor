@@ -26,8 +26,13 @@ else if (profile != null)
             <p>
                 @profile.Email
             </p>
+            <div class="mt-3">
+                <h4>⭐ @profile.AverageRating.ToString("0.0")</h4>
+                <p>@profile.TotalReviews review-uri</p>
+            </div>
 
         </div>
+
 
         <div class="edit-card">
 
@@ -71,6 +76,30 @@ else if (profile != null)
             {
                 <div class="alert alert-success mt-4">
                     @message
+                </div>
+            }
+            @if (profile.Reviews.Any())
+            {
+                <div class="mt-4">
+                    <h4>Review-uri primite</h4>
+
+                    @foreach (var r in profile.Reviews)
+                    {
+                        <div class="card p-3 mb-2">
+
+                            <strong>@r.ReviewerName</strong>
+
+                            <div>
+                                @for (int i = 0; i < r.Rating; i++)
+                                {
+                                    <span>⭐</span>
+                                }
+                            </div>
+
+                            <p>@r.Comentariu</p>
+
+                        </div>
+                    }
                 </div>
             }
 

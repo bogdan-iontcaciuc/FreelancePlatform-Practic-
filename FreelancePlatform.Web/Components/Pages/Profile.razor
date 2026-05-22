@@ -44,6 +44,19 @@ else
         </div>
 
         <div class="stats-grid">
+            <div class="stat-card">
+                <h2>
+                    ⭐ @profile.AverageRating.ToString("0.0")
+                </h2>
+                <p>Rating mediu</p>
+            </div>
+
+            <div class="stat-card">
+                <h2>
+                    @profile.TotalReviews
+                </h2>
+                <p>Review-uri</p>
+            </div>
 
             <div class="stat-card">
                 <h2>@profile.TotalAnunturi</h2>
@@ -63,6 +76,46 @@ else
         </div>
 
         <div class="section">
+            <div class="section">
+
+                <h3>Review-uri primite</h3>
+
+                @if (!profile.Reviews.Any())
+                {
+                    <div class="empty-box">
+                        Acest utilizator nu are review-uri.
+                    </div>
+                }
+                else
+                {
+                    @foreach (var review in profile.Reviews)
+                    {
+                        <div class="modern-card mb-3">
+
+                            <h5>
+                                @review.ReviewerName
+                            </h5>
+
+                            <div class="mb-2">
+                                @for (int i = 0; i < review.Rating; i++)
+                                {
+                                    <span>⭐</span>
+                                }
+                            </div>
+
+                            <p>
+                                @review.Comentariu
+                            </p>
+
+                            <small class="text-muted">
+                                @review.CreatedAt.ToShortDateString()
+                            </small>
+
+                        </div>
+                    }
+                }
+
+            </div>
 
             <h3>Anunțuri publicate</h3>
 
