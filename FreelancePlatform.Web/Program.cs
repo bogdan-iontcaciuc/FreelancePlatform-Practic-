@@ -23,6 +23,7 @@ builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<ApplicationService>();
 builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<ProfileService>();
 var app = builder.Build();
 
 

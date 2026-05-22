@@ -23,4 +23,5 @@ public class User
 
     public ICollection<Order> OrdersAsFreelancer { get; set; }
         = new List<Order>();
+    public string Descriere { get; set; } = "";
 }
