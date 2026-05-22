@@ -16,35 +16,54 @@ public class ProfileService
             .FirstOrDefaultAsync(u => u.Id == userId);
 
         if (user == null)
-        {
             return null;
-        }
 
         var completedOrders = await _context.Orders
             .Include(o => o.Anunt)
-            .Where(o =>
-                o.FreelancerId == userId &&
-                o.Status == "Completed")
+            .Where(o => o.FreelancerId == userId && o.Status == "Completed")
             .ToListAsync();
 
         var totalAplicatii = await _context.Applications
             .CountAsync(a => a.FreelancerId == userId);
 
+        // REVIEWS (IMPORTANT)
+        var reviews = await _context.Reviews
+            .AsNoTracking()
+            .Include(r => r.Reviewer)
+            .Where(r => r.ReviewedUserId == userId)
+            .ToListAsync();
+
+        var averageRating = reviews.Any()
+            ? reviews.Average(r => r.Rating)
+            : 0;
+
         return new ProfileResponse
         {
             Id = user.Id,
-
             NumeComplet = user.NumeComplet,
-
             Email = user.Email,
-
             Descriere = user.Descriere,
 
             TotalAnunturi = user.Anunturi.Count,
-
             TotalAplicatii = totalAplicatii,
-
             TotalProiecteFinalizate = completedOrders.Count,
+
+            AverageRating = averageRating,
+            TotalReviews = reviews.Count,
+
+            Reviews = reviews
+                .OrderByDescending(r => r.CreatedAt)
+                .Select(r => new ReviewDto
+                {
+                    Id = r.Id,
+                    Rating = r.Rating,
+                    Comentariu = r.Comentariu,
+                    ReviewerName = r.Reviewer != null
+                        ? r.Reviewer.NumeComplet
+                        : "Utilizator",
+                    CreatedAt = r.CreatedAt
+                })
+                .ToList(),
 
             Anunturi = user.Anunturi
                 .Select(a => new AnuntResponse
@@ -66,35 +85,19 @@ public class ProfileService
                 .Select(o => new OrderDto
                 {
                     Id = o.Id,
-
                     AnuntId = o.AnuntId,
-
-                    TitluAnunt = o.Anunt != null
-                        ? o.Anunt.Titlu
-                        : "",
-
-                    Categorie = o.Anunt != null
-                        ? o.Anunt.Categorie
-                        : "",
-
-                    TipAnunt = o.Anunt != null
-                        ? o.Anunt.TipAnunt
-                        : "",
-
-                    PretSauBuget = o.Anunt != null
-                        ? o.Anunt.PretSauBuget
-                        : 0,
-
+                    TitluAnunt = o.Anunt != null ? o.Anunt.Titlu : "",
+                    Categorie = o.Anunt != null ? o.Anunt.Categorie : "",
+                    TipAnunt = o.Anunt != null ? o.Anunt.TipAnunt : "",
+                    PretSauBuget = o.Anunt != null ? o.Anunt.PretSauBuget : 0,
                     Status = o.Status,
-
                     CreatedAt = o.CreatedAt
                 })
                 .ToList()
         };
     }
 
-    public async Task<(bool Success, string Message)>
-        UpdateProfile(
+    public async Task<(bool Success, string Message)> UpdateProfile(
         int userId,
         UpdateProfileRequest request)
     {
@@ -102,9 +105,7 @@ public class ProfileService
             .FirstOrDefaultAsync(u => u.Id == userId);
 
         if (user == null)
-        {
             return (false, "Utilizator inexistent.");
-        }
 
         user.NumeComplet = request.NumeComplet;
         user.Descriere = request.Descriere;

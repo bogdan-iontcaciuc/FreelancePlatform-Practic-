@@ -1,11 +1,17 @@
 ﻿@page "/chat/{OrderId:int}"
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
 @inject MessageService MessageService
 @inject OrderService OrderService
+@inject ReviewService ReviewService
+
 @implements IDisposable
+
 @using Microsoft.AspNetCore.Components.Forms
 
-<h2 class="mb-4">Chat Order</h2>
+<h2 class="mb-4">
+    Chat Order
+</h2>
 
 <div class="border rounded p-3 mb-4"
      style="height:500px; overflow-y:auto;">
@@ -25,20 +31,20 @@
                 </div>
             }
 
-            <p>
+            <p class="mt-2">
                 @message.Continut
             </p>
 
             @if (!string.IsNullOrWhiteSpace(message.FisierUrl))
             {
                 <a href="@message.FisierUrl"
-                       target="_blank"
+                       download
                        class="btn btn-sm btn-outline-primary">
-                    Deschide fișier
+                    Descarcă fișier
                 </a>
             }
 
-            <small>
+            <small class="text-muted d-block mt-2">
                 @message.DataTrimiterii
             </small>
 
@@ -62,7 +68,7 @@
         </div>
     }
 
-    <div class="d-flex gap-3 mt-3">
+    <div class="d-flex gap-3 mt-3 flex-wrap">
 
         <button class="btn btn-primary"
                 @onclick="SendMessage">
@@ -81,10 +87,65 @@
 
     </div>
 
+    @if (ordersStatus == "Completed")
+    {
+        <div class="card p-4 mt-4 shadow-sm">
+
+            <h4 class="mb-3">
+                Lasă un review
+            </h4>
+
+            <label>
+                Rating
+            </label>
+
+            <select class="form-select"
+                    @bind="rating">
+
+                <option value="1">1 stea</option>
+                <option value="2">2 stele</option>
+                <option value="3">3 stele</option>
+                <option value="4">4 stele</option>
+                <option value="5">5 stele</option>
+
+            </select>
+
+            <label class="mt-3">
+                Comentariu
+            </label>
+
+            <textarea class="form-control"
+                      rows="5"
+                          @bind="reviewComment">
+        </textarea>
+
+                <button class="btn btn-warning mt-3"
+                        @onclick="SendReview">
+                    Trimite review
+                </button>
+
+                @if (!string.IsNullOrWhiteSpace(reviewMessage))
+                {
+                    <div class="alert alert-info mt-3">
+                        @reviewMessage
+                    </div>
+                }
+
+            </div>
+        }
+
 @code {
 
     [Parameter]
     public int OrderId { get; set; }
+
+    private string ordersStatus = "";
+
+    private int rating = 5;
+
+    private string reviewComment = "";
+
+    private string reviewMessage = "";
 
     private List<MessageDto> messages = new();
 
@@ -109,6 +170,7 @@
                     await InvokeAsync(async () =>
                     {
                         await LoadMessages();
+
                         StateHasChanged();
                     });
                 }
@@ -123,18 +185,24 @@
     {
         messages = await MessageService
             .GetMessages(OrderId);
+
+        var orders = await OrderService.GetOrders();
+
+        var currentOrder = orders
+            .FirstOrDefault(o => o.Id == OrderId);
+
+        if (currentOrder != null)
+        {
+            ordersStatus = currentOrder.Status;
+        }
     }
 
     private async Task UploadFile(InputFileChangeEventArgs e)
     {
         var file = e.File;
 
-        var result = await MessageService.UploadFile(file);
-
-        if (!string.IsNullOrWhiteSpace(result))
-        {
-            uploadedFileUrl = result;
-        }
+        uploadedFileUrl =
+            await MessageService.UploadFile(file);
     }
 
     private async Task SendMessage()
@@ -148,6 +216,7 @@
         });
 
         messageText = "";
+
         uploadedFileUrl = "";
 
         await LoadMessages();
@@ -164,6 +233,7 @@
         });
 
         messageText = "";
+
         uploadedFileUrl = "";
 
         await LoadMessages();
@@ -174,6 +244,21 @@
         await OrderService.CompleteOrder(OrderId);
 
         await LoadMessages();
+    }
+
+    private async Task SendReview()
+    {
+        var response = await ReviewService.Create(
+            new CreateReviewModel
+            {
+                OrderId = OrderId,
+                Rating = rating,
+                Comentariu = reviewComment
+            });
+
+        reviewMessage = response.IsSuccessStatusCode
+            ? "Review trimis."
+            : await response.Content.ReadAsStringAsync();
     }
 
     public void Dispose()

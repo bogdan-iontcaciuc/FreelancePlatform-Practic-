@@ -15,7 +15,7 @@ public class AppDbContext : DbContext
 
     public DbSet<Message> Messages { get; set; }
     public DbSet<Application> Applications { get; set; }
-
+    public DbSet<Review> Reviews { get; set; }
     public DbSet<Order> Orders { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,6 +47,31 @@ public class AppDbContext : DbContext
             .WithMany(u => u.OrdersAsFreelancer)
             .HasForeignKey(o => o.FreelancerId)
             .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Review>()
+    .HasOne(r => r.Reviewer)
+    .WithMany(u => u.ReviewsWritten)
+    .HasForeignKey(r => r.ReviewerId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Review>()
+            .HasOne(r => r.ReviewedUser)
+            .WithMany(u => u.ReviewsReceived)
+            .HasForeignKey(r => r.ReviewedUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Review>()
+            .HasOne(r => r.Order)
+            .WithMany(o => o.Reviews)
+            .HasForeignKey(r => r.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Review>()
+            .HasIndex(r => new
+            {
+                r.OrderId,
+                r.ReviewerId
+            })
+            .IsUnique();
     }
 
 }

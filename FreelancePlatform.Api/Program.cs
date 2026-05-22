@@ -88,7 +88,7 @@ builder.Services.AddScoped<ApplicationService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddDirectoryBrowser();
 builder.Services.AddScoped<ProfileService>();
-
+builder.Services.AddScoped<ReviewService>();
 var app = builder.Build();
 
 // Swagger

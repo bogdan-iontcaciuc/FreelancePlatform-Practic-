@@ -19,4 +19,10 @@
 
     public List<OrderModel> ProiecteFinalizate { get; set; }
         = new();
+    public double AverageRating { get; set; }
+
+    public int TotalReviews { get; set; }
+
+    public List<ReviewModel> Reviews { get; set; }
+        = new();
 }

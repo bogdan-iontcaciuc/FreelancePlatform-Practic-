@@ -24,6 +24,7 @@ builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<ApplicationService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<ProfileService>();
+builder.Services.AddScoped<ReviewService>();
 var app = builder.Build();
 
 
@@ -38,8 +39,9 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
-
+app.UseStaticFiles();
 app.MapRazorComponents<App>()
+
     .AddInteractiveServerRenderMode();
 
 app.Run();
