@@ -2,6 +2,8 @@
 @rendermode InteractiveServer
 @inject MessageService MessageService
 @inject OrderService OrderService
+@implements IDisposable
+@using Microsoft.AspNetCore.Components.Forms
 
 <h2 class="mb-4">Chat Order</h2>
 
@@ -30,7 +32,8 @@
             @if (!string.IsNullOrWhiteSpace(message.FisierUrl))
             {
                 <a href="@message.FisierUrl"
-                       target="_blank">
+                       target="_blank"
+                       class="btn btn-sm btn-outline-primary">
                     Deschide fișier
                 </a>
             }
@@ -48,9 +51,16 @@
           rows="6"
               @bind="messageText">
 </textarea>
-    <input class="form-control mt-3"
-           placeholder="Link fișier (opțional)"
-           @bind="fileUrl" />
+
+    <InputFile OnChange="UploadFile"
+               class="form-control mt-3" />
+
+    @if (!string.IsNullOrWhiteSpace(uploadedFileUrl))
+    {
+        <div class="alert alert-success mt-3">
+            Fișier încărcat cu succes
+        </div>
+    }
 
     <div class="d-flex gap-3 mt-3">
 
@@ -70,7 +80,8 @@
         </button>
 
     </div>
-    @code {
+
+@code {
 
     [Parameter]
     public int OrderId { get; set; }
@@ -79,11 +90,33 @@
 
     private string messageText = "";
 
-    private string fileUrl = "";
+    private string uploadedFileUrl = "";
+
+    private PeriodicTimer? timer;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadMessages();
+
+        timer = new PeriodicTimer(TimeSpan.FromSeconds(3));
+
+        _ = Task.Run(async () =>
+        {
+            while (await timer.WaitForNextTickAsync())
+            {
+                try
+                {
+                    await InvokeAsync(async () =>
+                    {
+                        await LoadMessages();
+                        StateHasChanged();
+                    });
+                }
+                catch
+                {
+                }
+            }
+        });
     }
 
     private async Task LoadMessages()
@@ -92,18 +125,30 @@
             .GetMessages(OrderId);
     }
 
+    private async Task UploadFile(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        var result = await MessageService.UploadFile(file);
+
+        if (!string.IsNullOrWhiteSpace(result))
+        {
+            uploadedFileUrl = result;
+        }
+    }
+
     private async Task SendMessage()
     {
         await MessageService.Send(new SendMessageModel
         {
             OrderId = OrderId,
             Continut = messageText,
-            FisierUrl = fileUrl,
+            FisierUrl = uploadedFileUrl,
             EsteLivrare = false
         });
 
         messageText = "";
-        fileUrl = "";
+        uploadedFileUrl = "";
 
         await LoadMessages();
     }
@@ -114,12 +159,12 @@
         {
             OrderId = OrderId,
             Continut = messageText,
-            FisierUrl = fileUrl,
+            FisierUrl = uploadedFileUrl,
             EsteLivrare = true
         });
 
         messageText = "";
-        fileUrl = "";
+        uploadedFileUrl = "";
 
         await LoadMessages();
     }
@@ -129,5 +174,10 @@
         await OrderService.CompleteOrder(OrderId);
 
         await LoadMessages();
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
     }
 }

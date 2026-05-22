@@ -1,5 +1,5 @@
 ﻿using System.Net.Http.Json;
-
+using Microsoft.AspNetCore.Components.Forms;
 public class MessageService
 {
     private readonly HttpClient _http;
@@ -34,5 +34,32 @@ public class MessageService
             List<MessageDto>>(
             $"api/messages/order/{orderId}"
         ) ?? new();
+    }
+    public async Task<string> UploadFile(IBrowserFile file)
+    {
+        await _authService.AddTokenToHeader();
+
+        var content = new MultipartFormDataContent();
+
+        var stream = file.OpenReadStream(1024 * 1024 * 50);
+
+        var fileContent = new StreamContent(stream);
+
+        fileContent.Headers.ContentType =
+            new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+
+        content.Add(fileContent, "file", file.Name);
+
+        var response = await _http.PostAsync(
+            "api/messages/upload",
+            content
+        );
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return "";
+        }
+
+        return await response.Content.ReadAsStringAsync();
     }
 }
