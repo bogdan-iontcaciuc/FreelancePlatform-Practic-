@@ -18,7 +18,6 @@ else
     {
         <div class="card shadow-sm mb-3">
 
-            ```
             <div class="card-body">
 
                 <h5>
@@ -46,14 +45,11 @@ else
 
         </div>
     }
-
-
 }
 
 @code {
 
-
-[Parameter]
+    [Parameter]
     public int AnuntId { get; set; }
 
     private List<ApplicationModel> applications = new();
@@ -74,5 +70,4 @@ else
             await ApplicationService
                 .GetApplications(AnuntId);
     }
-
 }

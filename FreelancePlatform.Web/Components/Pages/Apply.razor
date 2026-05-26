@@ -50,13 +50,36 @@
 
     private async Task Send()
     {
+        status = "";
+
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            status = "Mesajul este obligatoriu.";
+            return;
+        }
+
         var response = await ApplicationService.Apply(
             Id,
             message
         );
 
-        status = response.IsSuccessStatusCode
-            ? "Aplicație trimisă"
-            : await response.Content.ReadAsStringAsync();
+        if (response.IsSuccessStatusCode)
+        {
+            status = "Aplicație trimisă cu succes";
+        }
+        else
+        {
+            var error = await response.Content.ReadAsStringAsync();
+
+            // opțional: încearcă să scoți mesajul curat
+            if (error.Contains("MesajAplicare"))
+            {
+                status = "Mesajul aplicării este obligatoriu.";
+            }
+            else
+            {
+                status = error;
+            }
+        }
     }
 }
