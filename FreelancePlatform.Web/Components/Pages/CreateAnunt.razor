@@ -26,7 +26,7 @@
                         <ValidationSummary />
 
                         <div class="mb-4">
-                            <label class="form-label fw-semibold">
+                            <label class="form-label fw-semibold required">
                                 Titlu
                             </label>
 
@@ -35,7 +35,7 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label fw-semibold">
+                            <label class="form-label fw-semibold required">
                                 Descriere
                             </label>
 
@@ -48,7 +48,7 @@
 
                             <div class="col-md-6 mb-4">
 
-                                <label class="form-label fw-semibold">
+                                <label class="form-label fw-semibold required">
                                     Tip anunț
                                 </label>
 
@@ -65,7 +65,7 @@
 
                             <div class="col-md-6 mb-4">
 
-                                <label class="form-label fw-semibold">
+                                <label class="form-label fw-semibold required">
                                     Categorie
                                 </label>
 
@@ -173,6 +173,11 @@
         color: #dc3545;
         font-size: 14px;
         margin-top: 5px;
+    }
+
+    .required::after {
+        content: " *";
+        color: #dc3545;
     }
 
 </style>
