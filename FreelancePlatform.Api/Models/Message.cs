@@ -29,4 +29,6 @@ public class Message
 
     public DateTime DataTrimiterii { get; set; }
         = DateTime.UtcNow;
+    public bool EsteEditat { get; set; }
+    public DateTime? DataEditarii { get; set; }
 }

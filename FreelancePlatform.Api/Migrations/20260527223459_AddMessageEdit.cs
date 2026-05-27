@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FreelancePlatform.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class DbFreelance : Migration
+    public partial class AddMessageEdit : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,7 +19,8 @@ namespace FreelancePlatform.Api.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NumeComplet = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Parola = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Parola = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Descriere = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -132,6 +133,8 @@ namespace FreelancePlatform.Api.Migrations
                     EsteLivrare = table.Column<bool>(type: "bit", nullable: false),
                     FisierUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DataTrimiterii = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EsteEditat = table.Column<bool>(type: "bit", nullable: false),
+                    DataEditarii = table.Column<DateTime>(type: "datetime2", nullable: true),
                     AnuntId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -156,6 +159,42 @@ namespace FreelancePlatform.Api.Migrations
                     table.ForeignKey(
                         name: "FK_Messages_Users_ExpeditorId",
                         column: x => x.ExpeditorId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Reviews",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    ReviewerId = table.Column<int>(type: "int", nullable: false),
+                    ReviewedUserId = table.Column<int>(type: "int", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false),
+                    Comentariu = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Reviews", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Reviews_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Reviews_Users_ReviewedUserId",
+                        column: x => x.ReviewedUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Reviews_Users_ReviewerId",
+                        column: x => x.ReviewerId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -210,6 +249,22 @@ namespace FreelancePlatform.Api.Migrations
                 name: "IX_Orders_FreelancerId",
                 table: "Orders",
                 column: "FreelancerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reviews_OrderId_ReviewerId",
+                table: "Reviews",
+                columns: new[] { "OrderId", "ReviewerId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reviews_ReviewedUserId",
+                table: "Reviews",
+                column: "ReviewedUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reviews_ReviewerId",
+                table: "Reviews",
+                column: "ReviewerId");
         }
 
         /// <inheritdoc />
@@ -220,6 +275,9 @@ namespace FreelancePlatform.Api.Migrations
 
             migrationBuilder.DropTable(
                 name: "Messages");
+
+            migrationBuilder.DropTable(
+                name: "Reviews");
 
             migrationBuilder.DropTable(
                 name: "Orders");

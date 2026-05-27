@@ -13,4 +13,7 @@
     public string? FisierUrl { get; set; }
 
     public DateTime DataTrimiterii { get; set; }
+    public bool EsteEditat { get; set; }
+
+    public DateTime? DataEditarii { get; set; }
 }
