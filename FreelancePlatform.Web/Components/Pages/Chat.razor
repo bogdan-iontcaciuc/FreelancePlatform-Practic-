@@ -5,6 +5,7 @@
 @inject OrderService OrderService
 @inject ReviewService ReviewService
 @inject AuthService AuthService
+@inject IJSRuntime JS
 
 @implements IDisposable
 
@@ -15,7 +16,8 @@
 </h2>
 
 <div class="border rounded p-3 mb-4"
-     style="height:500px; overflow-y:auto;">
+     style="height:500px; overflow-y:auto;"
+     @ref="chatContainer">
 
     @foreach (var message in messages)
     {
@@ -92,6 +94,10 @@
         }
 
     </div>
+    <button class="btn btn-outline-secondary mb-3"
+            @onclick="ScrollToBottom">
+        Scroll jos
+    </button>
 
     <textarea class="form-control"
               rows="6"
@@ -183,6 +189,8 @@
 
     private int rating = 5;
 
+    private ElementReference chatContainer;
+
     private string reviewComment = "";
 
     private string reviewMessage = "";
@@ -206,6 +214,10 @@
         currentUserId = await AuthService.GetUserId();
 
         await LoadMessages();
+
+        await Task.Delay(100);
+
+        await ScrollToBottom();
 
         timer = new PeriodicTimer(TimeSpan.FromSeconds(3));
 
@@ -268,6 +280,9 @@
         uploadedFileUrl = "";
 
         await LoadMessages();
+        await Task.Delay(50);
+
+        await ScrollToBottom();
     }
 
     private async Task DeliverWork()
@@ -285,6 +300,10 @@
         uploadedFileUrl = "";
 
         await LoadMessages();
+
+        await Task.Delay(50);
+
+        await ScrollToBottom();
     }
 
     private async Task CompleteOrder()
@@ -336,6 +355,16 @@
         editingText = "";
 
         await LoadMessages();
+
+        await Task.Delay(50);
+
+        await ScrollToBottom();
+    }
+    private async Task ScrollToBottom()
+    {
+        await JS.InvokeVoidAsync(
+            "scrollChatToBottom",
+            chatContainer);
     }
 
     public void Dispose()
