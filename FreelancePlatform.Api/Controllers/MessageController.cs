@@ -47,4 +47,24 @@ public class MessageController : ControllerBase
 
         return Ok(result);
     }
+    [Authorize]
+    [HttpPut("edit")]
+    public async Task<IActionResult> Edit(
+    [FromBody] EditMessageRequest request)
+    {
+        var userIdClaim =
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        int userId = int.Parse(userIdClaim!);
+
+        var result = await _messageService
+            .EditMessage(userId, request);
+
+        if (!result.Success)
+        {
+            return BadRequest(result.Message);
+        }
+
+        return Ok(result.Message);
+    }
 }

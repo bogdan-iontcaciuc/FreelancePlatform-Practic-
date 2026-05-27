@@ -66,4 +66,14 @@ public class MessageService
 
         return result?.Url ?? "";
     }
+    public async Task<HttpResponseMessage> Edit(
+    EditMessageModel model)
+    {
+        await _authService.AddTokenToHeader();
+
+        return await _http.PutAsJsonAsync(
+            "api/messages/edit",
+            model
+        );
+    }
 }

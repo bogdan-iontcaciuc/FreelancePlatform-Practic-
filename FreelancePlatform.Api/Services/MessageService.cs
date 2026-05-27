@@ -90,8 +90,37 @@ public class MessageService
                     : "Necunoscut",
                 EsteLivrare = m.EsteLivrare,
                 FisierUrl = m.FisierUrl,
-                DataTrimiterii = m.DataTrimiterii
+                DataTrimiterii = m.DataTrimiterii,
+                EsteEditat = m.EsteEditat,
+                DataEditarii = m.DataEditarii
             })
             .ToListAsync();
+    }
+    public async Task<(bool Success, string Message)> EditMessage(
+    int userId,
+    EditMessageRequest request)
+    {
+        var message = await _context.Messages
+            .FirstOrDefaultAsync(m => m.Id == request.MessageId);
+
+        if (message == null)
+        {
+            return (false, "Mesaj inexistent.");
+        }
+
+        if (message.ExpeditorId != userId)
+        {
+            return (false, "Nu poți edita acest mesaj.");
+        }
+
+        message.Continut = request.ContinutNou;
+
+        message.EsteEditat = true;
+
+        message.DataEditarii = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        return (true, "Mesaj editat.");
     }
 }

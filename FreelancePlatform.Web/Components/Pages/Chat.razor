@@ -4,6 +4,7 @@
 @inject MessageService MessageService
 @inject OrderService OrderService
 @inject ReviewService ReviewService
+@inject AuthService AuthService
 
 @implements IDisposable
 
@@ -31,108 +32,147 @@
                 </div>
             }
 
-            <p class="mt-2">
-                @message.Continut
-            </p>
-
-            @if (!string.IsNullOrWhiteSpace(message.FisierUrl))
+            @if (editingMessageId == message.Id)
             {
-                <a href="@message.FisierUrl"
-                       download
-                       class="btn btn-sm btn-outline-primary">
-                    Descarcă fișier
-                </a>
-            }
+                <textarea class="form-control mt-2"
+                          rows="4"
+                              @bind="editingText">
+                </textarea>
 
-            <small class="text-muted d-block mt-2">
-                @message.DataTrimiterii
-            </small>
+                    <div class="d-flex gap-2 mt-2">
 
-        </div>
-    }
+                        <button class="btn btn-success btn-sm"
+                                @onclick="() => SaveEdit(message.Id)">
+                            Salvează
+                        </button>
 
-</div>
+                        <button class="btn btn-secondary btn-sm"
+                                @onclick="CancelEdit">
+                            Anulează
+                        </button>
 
-<textarea class="form-control"
-          rows="6"
-              @bind="messageText">
-</textarea>
-
-    <InputFile OnChange="UploadFile"
-               class="form-control mt-3" />
-
-    @if (!string.IsNullOrWhiteSpace(uploadedFileUrl))
-    {
-        <div class="alert alert-success mt-3">
-            Fișier încărcat cu succes
-        </div>
-    }
-
-    <div class="d-flex gap-3 mt-3 flex-wrap">
-
-        <button class="btn btn-primary"
-                @onclick="SendMessage">
-            Trimite mesaj
-        </button>
-
-        <button class="btn btn-success"
-                @onclick="DeliverWork">
-            Livrează produsul
-        </button>
-
-        <button class="btn btn-dark"
-                @onclick="CompleteOrder">
-            Confirmă finalizarea
-        </button>
-
-    </div>
-
-    @if (ordersStatus == "Completed")
-    {
-        <div class="card p-4 mt-4 shadow-sm">
-
-            <h4 class="mb-3">
-                Lasă un review
-            </h4>
-
-            <label>
-                Rating
-            </label>
-
-            <select class="form-select"
-                    @bind="rating">
-
-                <option value="1">1 stea</option>
-                <option value="2">2 stele</option>
-                <option value="3">3 stele</option>
-                <option value="4">4 stele</option>
-                <option value="5">5 stele</option>
-
-            </select>
-
-            <label class="mt-3">
-                Comentariu
-            </label>
-
-            <textarea class="form-control"
-                      rows="5"
-                          @bind="reviewComment">
-        </textarea>
-
-                <button class="btn btn-warning mt-3"
-                        @onclick="SendReview">
-                    Trimite review
-                </button>
-
-                @if (!string.IsNullOrWhiteSpace(reviewMessage))
-                {
-                    <div class="alert alert-info mt-3">
-                        @reviewMessage
                     </div>
+                }
+            else
+                {
+                    <p class="mt-2">
+                        @message.Continut
+
+                        @if (message.EsteEditat)
+                        {
+                            <span class="text-muted">
+                                (editat)
+                            </span>
+                        }
+                    </p>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(message.FisierUrl))
+                {
+                    <a href="@message.FisierUrl"
+                           download
+                           class="btn btn-sm btn-outline-primary">
+                        Descarcă fișier
+                    </a>
+                }
+
+                <small class="text-muted d-block mt-2">
+                    @message.DataTrimiterii
+                </small>
+
+                @if (message.ExpeditorId == currentUserId)
+                {
+                    <button class="btn btn-sm btn-outline-dark mt-2"
+                            @onclick="() => StartEdit(message)">
+                        Editează
+                    </button>
                 }
 
             </div>
         }
+
+    </div>
+
+    <textarea class="form-control"
+              rows="6"
+                  @bind="messageText">
+</textarea>
+
+        <InputFile OnChange="UploadFile"
+                   class="form-control mt-3" />
+
+        @if (!string.IsNullOrWhiteSpace(uploadedFileUrl))
+        {
+            <div class="alert alert-success mt-3">
+                Fișier încărcat cu succes
+            </div>
+        }
+
+        <div class="d-flex gap-3 mt-3 flex-wrap">
+
+            <button class="btn btn-primary"
+                    @onclick="SendMessage">
+                Trimite mesaj
+            </button>
+
+            <button class="btn btn-success"
+                    @onclick="DeliverWork">
+                Livrează produsul
+            </button>
+
+            <button class="btn btn-dark"
+                    @onclick="CompleteOrder">
+                Confirmă finalizarea
+            </button>
+
+        </div>
+
+        @if (ordersStatus == "Completed")
+        {
+            <div class="card p-4 mt-4 shadow-sm">
+
+                <h4 class="mb-3">
+                    Lasă un review
+                </h4>
+
+                <label>
+                    Rating
+                </label>
+
+                <select class="form-select"
+                        @bind="rating">
+
+                    <option value="1">1 stea</option>
+                    <option value="2">2 stele</option>
+                    <option value="3">3 stele</option>
+                    <option value="4">4 stele</option>
+                    <option value="5">5 stele</option>
+
+                </select>
+
+                <label class="mt-3">
+                    Comentariu
+                </label>
+
+                <textarea class="form-control"
+                          rows="5"
+                              @bind="reviewComment">
+        </textarea>
+
+                    <button class="btn btn-warning mt-3"
+                            @onclick="SendReview">
+                        Trimite review
+                    </button>
+
+                    @if (!string.IsNullOrWhiteSpace(reviewMessage))
+                    {
+                        <div class="alert alert-info mt-3">
+                            @reviewMessage
+                        </div>
+                    }
+
+                </div>
+            }
 
 @code {
 
@@ -155,8 +195,16 @@
 
     private PeriodicTimer? timer;
 
+    private int? editingMessageId = null;
+
+    private string editingText = "";
+
+    private int currentUserId;
+
     protected override async Task OnInitializedAsync()
     {
+        currentUserId = await AuthService.GetUserId();
+
         await LoadMessages();
 
         timer = new PeriodicTimer(TimeSpan.FromSeconds(3));
@@ -259,6 +307,35 @@
         reviewMessage = response.IsSuccessStatusCode
             ? "Review trimis."
             : await response.Content.ReadAsStringAsync();
+    }
+
+    private void StartEdit(MessageDto message)
+    {
+        editingMessageId = message.Id;
+
+        editingText = message.Continut;
+    }
+
+    private void CancelEdit()
+    {
+        editingMessageId = null;
+
+        editingText = "";
+    }
+
+    private async Task SaveEdit(int messageId)
+    {
+        await MessageService.Edit(new EditMessageModel
+        {
+            MessageId = messageId,
+            ContinutNou = editingText
+        });
+
+        editingMessageId = null;
+
+        editingText = "";
+
+        await LoadMessages();
     }
 
     public void Dispose()

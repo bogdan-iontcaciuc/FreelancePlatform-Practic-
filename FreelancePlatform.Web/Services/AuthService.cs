@@ -2,6 +2,8 @@
 using Blazored.LocalStorage;
 using System.Net.Http.Headers;
 using Microsoft.JSInterop;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 public class AuthService
 {
     private readonly HttpClient _http;
@@ -88,6 +90,30 @@ public class AuthService
                 );
         }
     }
+    public async Task<int> GetUserId()
+    {
+        var token = await GetToken();
+
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return 0;
+        }
+
+        var handler = new JwtSecurityTokenHandler();
+
+        var jwt = handler.ReadJwtToken(token);
+
+        var userIdClaim = jwt.Claims.FirstOrDefault(c =>
+            c.Type == ClaimTypes.NameIdentifier ||
+            c.Type == "nameid");
+
+        if (userIdClaim == null)
+        {
+            return 0;
+        }
+
+        return int.Parse(userIdClaim.Value);
+    }
 
     public async Task Logout()
     {
@@ -99,4 +125,5 @@ public class AuthService
 
         OnAuthStateChanged?.Invoke(); // refresh navbar instant
     }
+
 }

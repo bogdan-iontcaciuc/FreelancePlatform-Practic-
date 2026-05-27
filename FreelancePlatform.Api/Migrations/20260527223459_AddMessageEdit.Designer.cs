@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreelancePlatform.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260522165700_AddProfileFeature")]
-    partial class AddProfileFeature
+    [Migration("20260527223459_AddMessageEdit")]
+    partial class AddMessageEdit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -123,11 +123,17 @@ namespace FreelancePlatform.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DataEditarii")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("DataTrimiterii")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("DestinatarId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("EsteEditat")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("EsteLivrare")
                         .HasColumnType("bit");
@@ -193,6 +199,45 @@ namespace FreelancePlatform.Api.Migrations
                     b.HasIndex("FreelancerId");
 
                     b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("Review", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comentariu")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReviewedUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReviewerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReviewedUserId");
+
+                    b.HasIndex("ReviewerId");
+
+                    b.HasIndex("OrderId", "ReviewerId")
+                        .IsUnique();
+
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("User", b =>
@@ -310,6 +355,33 @@ namespace FreelancePlatform.Api.Migrations
                     b.Navigation("Freelancer");
                 });
 
+            modelBuilder.Entity("Review", b =>
+                {
+                    b.HasOne("Order", "Order")
+                        .WithMany("Reviews")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("User", "ReviewedUser")
+                        .WithMany("ReviewsReceived")
+                        .HasForeignKey("ReviewedUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("User", "Reviewer")
+                        .WithMany("ReviewsWritten")
+                        .HasForeignKey("ReviewerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("ReviewedUser");
+
+                    b.Navigation("Reviewer");
+                });
+
             modelBuilder.Entity("FreelancePlatform.Api.Models.Anunt", b =>
                 {
                     b.Navigation("Aplicatii");
@@ -322,6 +394,8 @@ namespace FreelancePlatform.Api.Migrations
             modelBuilder.Entity("Order", b =>
                 {
                     b.Navigation("Messages");
+
+                    b.Navigation("Reviews");
                 });
 
             modelBuilder.Entity("User", b =>
@@ -337,6 +411,10 @@ namespace FreelancePlatform.Api.Migrations
                     b.Navigation("OrdersAsBuyer");
 
                     b.Navigation("OrdersAsFreelancer");
+
+                    b.Navigation("ReviewsReceived");
+
+                    b.Navigation("ReviewsWritten");
                 });
 #pragma warning restore 612, 618
         }
