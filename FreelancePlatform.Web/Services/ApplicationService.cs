@@ -38,4 +38,13 @@ public class ApplicationService
             $"api/applications/anunt/{anuntId}"
         ) ?? new();
     }
+    public async Task<HttpResponseMessage> RejectApplication(
+    int applicationId)
+    {
+        await _authService.AddTokenToHeader();
+
+        return await _http.PutAsync(
+            $"api/applications/{applicationId}/reject",
+            null);
+    }
 }

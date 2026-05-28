@@ -26,13 +26,19 @@ public class ApplicationService
             return (false, "Nu poți aplica la propriul anunț.");
         }
 
-        var alreadyApplied = await _context.Applications
-            .AnyAsync(a =>
-                a.AnuntId == request.AnuntId &&
-                a.FreelancerId == freelancerId);
+        var existingApplication = await _context.Applications
+    .FirstOrDefaultAsync(a =>
+        a.AnuntId == request.AnuntId &&
+        a.FreelancerId == freelancerId);
 
-        if (alreadyApplied)
+        if (existingApplication != null)
         {
+            if (existingApplication.Status == "Respins")
+            {
+                return (false,
+                    "Ai fost respins pentru acest anunț și nu mai poți aplica.");
+            }
+
             return (false, "Ai aplicat deja.");
         }
 
@@ -66,5 +72,45 @@ public class ApplicationService
                 DataAplicarii = a.DataAplicarii
             })
             .ToListAsync();
+    }
+    public async Task<(bool Success, string Message)> RejectApplication(
+    int applicationId,
+    int userId)
+    {
+        var application = await _context.Applications
+            .Include(a => a.Anunt)
+            .FirstOrDefaultAsync(a => a.Id == applicationId);
+
+        if (application == null)
+        {
+            return (false, "Aplicația nu există.");
+        }
+
+        if (application.Anunt == null)
+        {
+            return (false, "Anunțul nu există.");
+        }
+
+        if (application.Anunt.UtilizatorId != userId)
+        {
+            return (false, "Nu ai acces.");
+        }
+
+        if (application.Status == "Respins")
+        {
+            return (false, "Aplicația este deja respinsă.");
+        }
+
+        if (application.Status == "Acceptat")
+        {
+            return (false,
+                "Nu poți respinge o aplicație acceptată.");
+        }
+
+        application.Status = "Respins";
+
+        await _context.SaveChangesAsync();
+
+        return (true, "Aplicația a fost respinsă.");
     }
 }
