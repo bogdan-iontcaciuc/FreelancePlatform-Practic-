@@ -43,4 +43,23 @@ public class ApplicationController : ControllerBase
 
         return Ok(result);
     }
+    [Authorize]
+    [HttpPut("{id}/reject")]
+    public async Task<IActionResult> Reject(int id)
+    {
+        var userIdClaim =
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        int userId = int.Parse(userIdClaim!);
+
+        var result = await _applicationService
+            .RejectApplication(id, userId);
+
+        if (!result.Success)
+        {
+            return BadRequest(result.Message);
+        }
+
+        return Ok(result.Message);
+    }
 }

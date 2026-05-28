@@ -30,15 +30,42 @@ else
 
                 <p>
                     Status:
-                    @app.Status
+
+                    @if (app.Status == "Pending")
+                    {
+                        <span class="badge bg-warning text-dark">
+                            Pending
+                        </span>
+                    }
+                    else if (app.Status == "Respins")
+                    {
+                        <span class="badge bg-danger">
+                            Respins
+                        </span>
+                    }
+                    else if (app.Status == "Acceptat")
+                    {
+                        <span class="badge bg-success">
+                            Acceptat
+                        </span>
+                    }
                 </p>
 
                 @if (app.Status == "Pending")
                 {
-                    <button class="btn btn-success"
-                            @onclick="() => Accept(app.Id)">
-                        Acceptă
-                    </button>
+                    <div class="d-flex gap-2">
+
+                        <button class="btn btn-success"
+                                @onclick="() => Accept(app.Id)">
+                            Acceptă
+                        </button>
+
+                        <button class="btn btn-danger"
+                                @onclick="() => Reject(app.Id)">
+                            Respinge
+                        </button>
+
+                    </div>
                 }
 
             </div>
@@ -69,5 +96,17 @@ else
         applications =
             await ApplicationService
                 .GetApplications(AnuntId);
+    }
+    private async Task Reject(int applicationId)
+    {
+        var response = await ApplicationService
+            .RejectApplication(applicationId);
+
+        if (response.IsSuccessStatusCode)
+        {
+            applications =
+                await ApplicationService
+                    .GetApplications(AnuntId);
+        }
     }
 }

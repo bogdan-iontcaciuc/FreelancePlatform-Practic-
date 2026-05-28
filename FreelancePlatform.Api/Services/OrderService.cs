@@ -39,7 +39,19 @@ public class OrderService
         {
             return (false, "Order deja existent.");
         }
-        application.Status = "Accepted";
+        if (application.Status == "Respins")
+        {
+            return (false,
+                "Nu poți accepta o aplicație respinsă.");
+        }
+
+        if (application.Status == "Acceptat")
+        {
+            return (false,
+                "Aplicația este deja acceptată.");
+        }
+
+        application.Status = "Acceptat";
 
         application.Anunt.Status = "În lucru";
 
