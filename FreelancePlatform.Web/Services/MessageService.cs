@@ -76,4 +76,19 @@ public class MessageService
             model
         );
     }
+    public async Task UpdatePresence(int orderId)
+    {
+        await _http.PostAsync(
+            $"api/messages/presence/{orderId}",
+            null);
+    }
+
+    public async Task<bool> GetPresence(int orderId)
+    {
+        var result = await _http
+            .GetFromJsonAsync<PresenceDto>(
+                $"api/messages/presence/{orderId}");
+
+        return result?.IsOnline ?? false;
+    }
 }

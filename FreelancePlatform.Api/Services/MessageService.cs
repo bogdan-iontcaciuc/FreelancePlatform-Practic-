@@ -123,4 +123,64 @@ public class MessageService
 
         return (true, "Mesaj editat.");
     }
+    public async Task UpdatePresence(int orderId, int userId)
+    {
+        var order = await _context.Orders
+            .FirstOrDefaultAsync(o => o.Id == orderId);
+
+        if (order == null)
+        {
+            return;
+        }
+
+        bool hasAccess =
+            order.BuyerId == userId ||
+            order.FreelancerId == userId;
+
+        if (!hasAccess)
+        {
+            return;
+        }
+
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null)
+        {
+            return;
+        }
+
+        user.LastSeen = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<bool> IsOtherUserOnline(
+        int orderId,
+        int userId)
+    {
+        var order = await _context.Orders
+            .FirstOrDefaultAsync(o => o.Id == orderId);
+
+        if (order == null)
+        {
+            return false;
+        }
+
+        int otherUserId =
+            order.BuyerId == userId
+                ? order.FreelancerId
+                : order.BuyerId;
+
+        var otherUser = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == otherUserId);
+
+        if (otherUser?.LastSeen == null)
+        {
+            return false;
+        }
+
+        return otherUser.LastSeen >
+            DateTime.UtcNow.AddSeconds(-5);
+    }
 }

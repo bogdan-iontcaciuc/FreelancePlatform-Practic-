@@ -67,4 +67,38 @@ public class MessageController : ControllerBase
 
         return Ok(result.Message);
     }
+    [Authorize]
+    [HttpPost("presence/{orderId}")]
+    public async Task<IActionResult> UpdatePresence(
+    int orderId)
+    {
+        var userIdClaim =
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        int userId = int.Parse(userIdClaim!);
+
+        await _messageService
+            .UpdatePresence(orderId, userId);
+
+        return Ok();
+    }
+
+    [Authorize]
+    [HttpGet("presence/{orderId}")]
+    public async Task<IActionResult> GetPresence(
+        int orderId)
+    {
+        var userIdClaim =
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        int userId = int.Parse(userIdClaim!);
+
+        bool isOnline = await _messageService
+            .IsOtherUserOnline(orderId, userId);
+
+        return Ok(new PresenceDto
+        {
+            IsOnline = isOnline
+        });
+    }
 }
