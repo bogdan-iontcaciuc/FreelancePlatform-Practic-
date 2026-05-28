@@ -29,4 +29,6 @@ public class User
 
     public ICollection<Review> ReviewsWritten { get; set; }
         = new List<Review>();
+
+    public DateTime? LastSeen { get; set; }
 }
